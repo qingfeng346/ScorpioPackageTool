@@ -18,7 +18,7 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   var icon = path.join(__dirname, 'assets/icon/icon.jpg'),
-  mainWindow = new BrowserWindow({width: 800, height: 600, title : "ScorpioAndroidTool", icon: icon})
+  mainWindow = new BrowserWindow({width: 800, height: 600, title : "ScorpioPackageTool", icon: icon})
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({

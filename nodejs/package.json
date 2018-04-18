@@ -1,5 +1,5 @@
 {
-  "name": "ScorpioAndroidTool",
+  "name": "ScorpioPackageTool",
   "version": "1.0.0",
   "description": "A minimal Electron application",
   "main": "main.js",

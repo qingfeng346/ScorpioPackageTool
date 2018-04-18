@@ -1,0 +1,7 @@
+/nodejs/node_modules
+/nodejs/apk
+/nodejs/tools/jd-gui/jd-gui.cfg
+/bin
+/DeserializePlist/bin
+/DeserializePlist/build
+/winstaller/node_modules

@@ -29,6 +29,7 @@ ipcMain.on('get-app-info', function (event) {
         },
         name : app.getName(),
         version : app.getVersion(),
-        locale : app.getLocale()
+        locale : app.getLocale(),
+        argv : process.argv
     }
 })

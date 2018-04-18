@@ -145,18 +145,9 @@ var Util = (function() {
     return Util;
 }());
 exports.Util = Util;
-
-// ipc.on('got-app-info', function (event, info) {
-//     toolsPath = info.path.appPath + "/tools/";                           //工具目录
-//     apkPath = info.path.userData + "/apks/";
-//     console.log(JSON.stringify(info))
-//     Util.init();
-//     Util.mkdir(apkPath);
-//     mainVue.fileList = Util.loadFileList();
-// })
 var appInfo = ipc.sendSync('get-app-info')
-console.log(JSON.stringify(appInfo))
 toolsPath = appInfo.path.appPath + "/tools/";                           //工具目录
 apkPath = appInfo.path.userData + "/apks/";
 Util.init();
 Util.mkdir(apkPath);
+console.log("appInfo = " + JSON.stringify(appInfo))

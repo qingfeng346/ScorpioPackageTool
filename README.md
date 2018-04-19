@@ -5,3 +5,7 @@
 ## 基础介绍
 * 此工具用于解析 Android apk安装包,获取基础数据,反编译java源码
 * 稍后支持解析 IOS ipa安装包基础数据
+
+![](https://github.com/qingfeng346/ScorpioPackageTool/raw/master/screenshot/1.png)
+![](https://github.com/qingfeng346/ScorpioPackageTool/raw/master/screenshot/2.png)
+![](https://github.com/qingfeng346/ScorpioPackageTool/raw/master/screenshot/3.png)

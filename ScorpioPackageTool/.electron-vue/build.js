@@ -46,7 +46,11 @@ function build () {
     process.stdout.write('\x1B[2J\x1B[0f')
     console.log(`\n\n${results}`)
     console.log(`${okayLog}take it away ${chalk.yellow('`electron-packager`')}\n`)
-    bundleApp()
+    bundleApp().then(result => {
+      copyTool(result)
+    }).catch(err => {
+      process.exit(1)
+    })
   })
 
   pack(mainConfig).then(result => {
@@ -98,14 +102,21 @@ function pack (config) {
 }
 
 function bundleApp () {
-  packager(buildConfig, (err, appPaths) => {
-    if (err) {
-      console.log(`\n${errorLog}${chalk.yellow('`electron-packager`')} says...\n`)
-      console.log(err + '\n')
-    } else {
-      console.log(`\n${doneLog}\n`)
-    }
+  return new Promise((resolve, reject) => {
+    packager(buildConfig, (err, appPaths) => {
+      if (err) {
+        console.log(`\n${errorLog}${chalk.yellow('`electron-packager`')} says...\n`)
+        console.log(err + '\n')
+        reject(err)
+      } else {
+        console.log(`\n${doneLog}\n`)
+        resolve(appPaths)
+      }
+    })
   })
+}
+function copyTool(appPaths) {
+  console.log("===================copyTool : " + appPaths + "   " + typeof appPaths);
 }
 
 function web () {

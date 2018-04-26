@@ -1,7 +1,7 @@
 {
-  "name": "scorpiopackagetool",
-  "productName": "scorpiopackagetool",
-  "version": "0.0.0",
+  "name": "ScorpioPackageTool",
+  "productName": "ScorpioPackageTool",
+  "version": "1.0.0",
   "author": "while <while@while.com>",
   "description": "apk and ipa parse tool",
   "license": null,

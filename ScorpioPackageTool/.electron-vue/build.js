@@ -116,6 +116,9 @@ function bundleApp () {
   })
 }
 function copyTool(appPaths) {
+  for (var path of appPaths) {
+    console.log("path = " + path);
+  }
   console.log("===================copyTool : " + appPaths + "   " + typeof appPaths);
 }
 

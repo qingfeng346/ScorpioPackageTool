@@ -30,7 +30,6 @@
 </template>
 
 <script>
-  import Util from '../commons/common'
   import SystemInformation from './LandingPage/SystemInformation'
 
   export default {

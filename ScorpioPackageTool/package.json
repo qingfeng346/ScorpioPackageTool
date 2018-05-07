@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "author": "while <while@while.com>",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js",

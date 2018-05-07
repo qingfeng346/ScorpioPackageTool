@@ -7,13 +7,20 @@
     </el-container>
 </template>
 <script>
-    import Util from "../common/common"
+    import { Util } from "../common/Util"
+    import { console } from '../common/logger';
     export default {
         name:"main-page",
         methods: {
             TestClick : function() {
-                Util.showMessage("11111111111111")
-                //this.$message("wwwwwwwwwwww")
+                Util.showOpenDialog({
+                    filters: [ {name: 'apk and ipa', extensions: ['apk', 'ipa'] }],
+                    properties: ['openFile']
+                }, 
+                null,
+                (files, args) => {
+                    console.log("files = " + JSON.stringify(files));
+                });
             }
         }
     }

@@ -1,6 +1,4 @@
-const app = require('electron').app
-const dialog = require('electron').dialog
-const ipcMain = require('electron').ipcMain
+import { app, dialog, ipcMain } from "electron";
 
 ipcMain.on('open-file-dialog', function (event, filters, args) {
   dialog.showOpenDialog({
@@ -12,7 +10,12 @@ ipcMain.on('open-file-dialog', function (event, filters, args) {
   }
   )
 })
-ipcMain.on('get-app-info', function (event) {
+ipcMain.on("showOpenDialog", (event, options, args) => {
+  dialog.showOpenDialog(options, (files) => {
+    if (files) event.sender.send("showOpenDialogResult", files, args);
+  });
+});
+ipcMain.on('getAppInfo', function (event) {
   event.returnValue = {
     path: {
       'appPath': app.getAppPath(),

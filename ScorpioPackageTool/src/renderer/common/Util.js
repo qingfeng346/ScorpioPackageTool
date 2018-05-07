@@ -34,6 +34,7 @@ const AndroidList = {
     "24" : "Android 7.0",
     "25" : "Android 8.0",
 }
+let ShowOpenDialogCallback = undefined
 var Util = (function() {
     function Util() {
     }
@@ -50,8 +51,13 @@ var Util = (function() {
         return (os.platform() == "linux");
     }
     Util.init = function() {
+        var appInfo = this.getAppInfo();
+        console.log("appInfo = " + JSON.stringify(appInfo, null, 2))
+        this.toolsPath = appInfo.path.appPath + "/tools/";          //工具目录
+        this.apkPath = appInfo.path.userData + "/apks/";            //apk存放目录
         this.file = this.apkPath + "files.json";
         this.mkdir(this.apkPath);
+        ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
     }
     Util.loadFileList = function() {
         if (!fs.existsSync(this.file)){ return []; }
@@ -138,12 +144,19 @@ var Util = (function() {
             message : message
         })
     }
+    Util.getAppInfo = function() {
+        return ipcRenderer.sendSync('getAppInfo')
+    }
+    Util.showOpenDialog = function(options, args, callback) {
+        ShowOpenDialogCallback = callback
+        ipcRenderer.send('showOpenDialog', options, args)
+    }
+    Util.showOpenDialogResult = function(event, files, args) {
+        var callback = ShowOpenDialogCallback
+        ShowOpenDialogCallback = undefined
+        if (callback) callback(files, args)
+    }
     return Util;
 }());
-var appInfo = ipcRenderer.sendSync('get-app-info')
-Util.toolsPath = appInfo.path.appPath + "/tools/";          //工具目录
-Util.apkPath = appInfo.path.userData + "/apks/";            //apk存放目录
 Util.init();
-
-console.log("appInfo = " + JSON.stringify(appInfo, null, 2))
-export default Util
+export { Util }

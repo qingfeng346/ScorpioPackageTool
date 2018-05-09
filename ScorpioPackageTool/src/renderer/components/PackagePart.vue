@@ -24,11 +24,6 @@
             <img style="background-color: white" v-bind:src="imageUrl"/>
             <pre><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
             </el-main>
-            <div style="height: 45px; margin: 0px 20px;">
-            <el-switch v-model="autoRoll" active-color="#13ce66" inactive-color="#ff4949" inactive-text="" active-text=""></el-switch>
-            <el-button icon="el-icon-delete" circle v-on:click="OnClickClearLog()"></el-button>
-            </div>
-            <el-footer style="height: 30%;overflow: auto;font-size: 14px;"><pre id="logoutput"></pre></el-footer>
         </el-container>
     </el-container>
 </template>
@@ -37,14 +32,33 @@
 export default {
     data() {
         return {
+            fileInfo : {                //当前打开apk的详细信息
+                name : "name",
+                label : "label",
+                bundle : "bundle",
+                versionName : "versionName",
+                versionCode : "versionCode",
+                sdkVersion : "sdkVersion",
+                icon : "icon"
+            },
+            iconUrl : "",               //当前打开app 的 icon
+            imageUrl : "",              //屏幕中间显示Image
+            mainEditor : "",            //屏幕中间显示内容
+            defaultProps: {
+                children: 'children',
+                label: 'label'
+            },
+            treeData: [],
             fileList: []
         }
     },
     methods: {
         formatSdkVersion: function() {
             return "1111"
-        }
+        },
+        OnClickTree: function() {
 
+        }
     }
 }
 </script>

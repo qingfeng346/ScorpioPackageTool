@@ -1,14 +1,11 @@
+const events = require('events')
 var logger = (function () {
     function logger() {
     }
     logger.log_impl = function(level, str) {
         str = `[${level}] ${str}`;
         console.log(str);
-        // var pre = document.getElementById("logoutput");
-        // pre.innerHTML = pre.innerHTML + str + "\n";
-        // if (typeof mainVue != "undefined" && mainVue.autoRoll) {
-        //     pre.parentNode.scrollTop = pre.parentNode.scrollHeight;
-        // }
+        this.event.emit("log", str);
     };
     logger.log = function (str) {
         this.log_impl("info", str);
@@ -24,5 +21,6 @@ var logger = (function () {
     };
     return logger;
 }());
+logger.event = new events()
 
 export {logger, logger as console};

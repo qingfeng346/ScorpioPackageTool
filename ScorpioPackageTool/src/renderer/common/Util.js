@@ -6,7 +6,6 @@ import { spawn, exec } from "child_process";
 import { Notification } from "element-ui";
 import { console } from "./logger";
 
-
 const AndroidList = {
     "1" : "Android 1.0",
     "2" : "Android 1.1",
@@ -148,8 +147,11 @@ var Util = (function() {
         return ipcRenderer.sendSync('getAppInfo')
     }
     Util.showOpenDialog = function(options, args, callback) {
-        ShowOpenDialogCallback = callback
-        ipcRenderer.send('showOpenDialog', options, args)
+        // ShowOpenDialogCallback = callback
+        // ipcRenderer.send('showOpenDialog', options, args)
+        var PackagePart = import('@/components/PackagePart')
+        console.log(JSON.stringify(PackagePart, null, 2));
+        //PackagePart.fileInfo.name = "111111"
     }
     Util.showOpenDialogResult = function(event, files, args) {
         var callback = ShowOpenDialogCallback

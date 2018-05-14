@@ -23,10 +23,15 @@
     import ListPart from "./ListPart"
     import PackagePart from "./PackagePart"
     import { Util } from "../common/Util"
-    import { console } from '../common/logger';
+    import { console, logger } from '../common/logger';
     export default {
         name:"main-page",
         components : { ListPart, PackagePart },
+        mounted() {
+            logger.event.on("log", (str) => {
+                window.console.log("ffffffffffffffffffffff " + str);
+            })
+        },
         data() {
             return {
                 logTag : "",
@@ -37,8 +42,10 @@
             handleTabClick: function() {
 
             },
-            TestClick : function() {
-                this.$router.push("/test");
+            OnClickOpenFile : function() {
+                //Util.showOpenDialog()
+                console.log("==================")
+                //this.$router.push("/test");
                 // Util.showOpenDialog({
                 //     filters: [ {name: 'apk and ipa', extensions: ['apk', 'ipa'] }],
                 //     properties: ['openFile']

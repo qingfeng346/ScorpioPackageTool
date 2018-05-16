@@ -28,9 +28,9 @@
         name:"main-page",
         components : { ListPart, PackagePart },
         mounted() {
-            logger.event.on("log", (str) => {
-                window.console.log("ffffffffffffffffffffff " + str);
-            })
+            // logger.event.on("log", (str) => {
+            //     window.console.log("ffffffffffffffffffffff " + str);
+            // })
         },
         data() {
             return {
@@ -44,16 +44,16 @@
             },
             OnClickOpenFile : function() {
                 //Util.showOpenDialog()
-                console.log("==================")
+                //console.log("==================")
                 //this.$router.push("/test");
-                // Util.showOpenDialog({
-                //     filters: [ {name: 'apk and ipa', extensions: ['apk', 'ipa'] }],
-                //     properties: ['openFile']
-                // }, 
-                // null,
-                // (files, args) => {
-                //     console.log("files = " + JSON.stringify(files));
-                // });
+                Util.showOpenDialog({
+                    filters: [ {name: 'apk or ipa', extensions: ['apk', 'ipa'] }],
+                    properties: ['openFile']
+                }, 
+                null,
+                (files, args) => {
+                    console.log("files = " + JSON.stringify(files));
+                });
             }
         }
     }

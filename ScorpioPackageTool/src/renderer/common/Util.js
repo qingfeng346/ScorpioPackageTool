@@ -147,11 +147,8 @@ var Util = (function() {
         return ipcRenderer.sendSync('getAppInfo')
     }
     Util.showOpenDialog = function(options, args, callback) {
-        // ShowOpenDialogCallback = callback
-        // ipcRenderer.send('showOpenDialog', options, args)
-        var PackagePart = import('@/components/PackagePart')
-        console.log(JSON.stringify(PackagePart, null, 2));
-        //PackagePart.fileInfo.name = "111111"
+        ShowOpenDialogCallback = callback
+        ipcRenderer.send('showOpenDialog', options, args)
     }
     Util.showOpenDialogResult = function(event, files, args) {
         var callback = ShowOpenDialogCallback

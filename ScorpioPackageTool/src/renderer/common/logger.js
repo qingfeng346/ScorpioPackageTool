@@ -23,5 +23,4 @@ var logger = (function () {
 }());
 logger.event = new events()
 
-window.console.log("==================================")
 export {logger, logger as console};

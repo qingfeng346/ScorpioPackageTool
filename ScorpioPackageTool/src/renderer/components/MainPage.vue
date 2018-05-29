@@ -44,16 +44,19 @@
             },
             OnClickOpenFile : function() {
                 //Util.showOpenDialog()
-                console.log("==================")
+                //console.log("==================")
                 //this.$router.push("/test");
-                // Util.showOpenDialog({
-                //     filters: [ {name: 'apk and ipa', extensions: ['apk', 'ipa'] }],
-                //     properties: ['openFile']
-                // }, 
-                // null,
-                // (files, args) => {
-                //     console.log("files = " + JSON.stringify(files));
-                // });
+                Util.showOpenDialog({
+                    filters: [
+                        { name: 'apk & ipa', extensions: ['apk', 'ipa'] },
+                        { name: 'All Files(*)', extensions: ['*'] }
+                    ],
+                    properties: ['openFile']
+                }, 
+                null,
+                (files, args) => {
+                    console.log("files = " + JSON.stringify(files));
+                });
             }
         }
     }

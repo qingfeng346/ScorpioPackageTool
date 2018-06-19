@@ -47,7 +47,7 @@
                 //console.log("==================")
                 //this.$router.push("/test");
                 Util.showOpenDialog({
-                    filters: [ {name: 'apk or ipa', extensions: ['apk', 'ipa'] }],
+                    filters: [ {name: 'apk & ipa', extensions: ['apk', 'ipa'] }],
                     properties: ['openFile']
                 }, 
                 null,

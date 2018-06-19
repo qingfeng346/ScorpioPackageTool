@@ -22,7 +22,7 @@
             </el-header>
             <el-main>
             <img style="background-color: white" v-bind:src="imageUrl"/>
-            <pre><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
+                <pre><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
             </el-main>
         </el-container>
     </el-container>

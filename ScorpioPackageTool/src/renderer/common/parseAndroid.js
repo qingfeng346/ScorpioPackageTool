@@ -1,7 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const Util = require('./common.js').Util;
+const Util = require('./Util.js').Util;
 const console = require('./logger.js').logger;
 
 var parseAndroid = (function () {
@@ -11,8 +11,8 @@ var parseAndroid = (function () {
         return new Promise((resolve, reject) => {
             this.file = sourceFile
             this.fileName = path.basename(sourceFile, ".apk");
-            this.targetPath = apkPath + this.fileName;              //目标目录
-            this.targetFile = apkPath + this.fileName + ".apk";     //目标文件
+            this.targetPath = Util.apkPath + this.fileName;              //目标目录
+            this.targetFile = Util.apkPath + this.fileName + ".apk";     //目标文件
             Util.mkdir(this.targetPath);
             fs.copyFile(sourceFile, this.targetFile, () => {
                 resolve();
@@ -125,4 +125,5 @@ var parseAndroid = (function () {
     }
     return parseAndroid;
 }());
-exports.parseAndroid = parseAndroid;
+
+export { parseAndroid }

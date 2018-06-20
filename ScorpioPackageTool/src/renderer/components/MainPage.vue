@@ -4,6 +4,7 @@
             <el-tabs type="card">
             <el-tab-pane label="常用">
                 <el-button type="primary" icon="el-icon-document" v-on:click="OnClickOpenFile()">打开文件</el-button>
+                <el-button type="primary" icon="el-icon-document" v-on:click="OnClickWorkPath()">工作目录</el-button>
             </el-tab-pane>
             <el-tab-pane label="系统日志">
                 <el-input v-model="logTag" placeholder="日志TAG" style="width: 120px;"></el-input>
@@ -23,7 +24,10 @@
     import ListPart from "./ListPart"
     import PackagePart from "./PackagePart"
     import { Util } from "../common/Util"
+    import { parseAndroid } from "../common/parseAndroid";
     import { console, logger } from '../common/logger';
+    import { Loading } from 'element-ui';
+    import { shell } from 'electron';
     export default {
         name:"main-page",
         components : { ListPart, PackagePart },
@@ -42,17 +46,21 @@
             handleTabClick: function() {
 
             },
+            OnClickWorkPath : function() {
+                shell.showItemInFolder(Util.apkPath);
+            },
             OnClickOpenFile : function() {
-                //Util.showOpenDialog()
-                //console.log("==================")
-                //this.$router.push("/test");
                 Util.showOpenDialog({
                     filters: [ {name: 'apk & ipa', extensions: ['apk', 'ipa'] }],
                     properties: ['openFile']
                 }, 
                 null,
-                (files, args) => {
-                    console.log("files = " + JSON.stringify(files));
+                async (files, args) => {
+                    var file = files[0];
+                    console.log("正在解析文件 : " + file);
+                    var parse = new parseAndroid();
+                    var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "正在解析apk"});
+                    await parse.init(file);
                 });
             }
         }

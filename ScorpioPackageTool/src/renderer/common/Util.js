@@ -1,5 +1,6 @@
-const fs = require("fs");
-const os = require("os");
+const fs = require("fs")
+const os = require("os")
+const path = require('path')
 const iconv = require("iconv-lite")
 import { ipcRenderer } from "electron";
 import { spawn, exec } from "child_process";
@@ -31,8 +32,23 @@ const AndroidList = {
     "22" : "Android 5.1",
     "23" : "Android 6.0",
     "24" : "Android 7.0",
-    "25" : "Android 8.0",
+    "25" : "Android 7.1",
+    "26" : "Android 8.0",
+    "27" : "Android 8.1",
 }
+String.prototype.startWith = function(str) {
+    if(str == null || str == "" || this.length == 0 || str.length > this.length) {
+        return false;
+    }
+    return this.substr(0, str.length) == str;
+}
+String.prototype.endWith = function(str) {
+    if(str == null || str == "" || this.length == 0 || str.length > this.length) {
+        return false;
+    }
+    return this.substring(this.length - str.length) == str;
+}
+
 let ShowOpenDialogCallback = undefined
 var Util = (function() {
     function Util() {
@@ -52,19 +68,43 @@ var Util = (function() {
     Util.init = function() {
         var appInfo = this.getAppInfo();
         console.log("appInfo = " + JSON.stringify(appInfo, null, 2))
-        this.toolsPath = appInfo.path.appPath + "/tools/";          //工具目录
-        this.apkPath = appInfo.path.userData + "/apks/";            //apk存放目录
-        this.file = this.apkPath + "files.json";
-        this.mkdir(this.apkPath);
+        this.dataPath = path.resolve(appInfo.path.userData, "./datas")     //数据存放目录
+        this.apkPath = path.resolve(this.dataPath, "./apks")               //apk存放目录
+        this.filesName = path.resolve(this.dataPath, "files.json")         //解析文件列表
+        this.toolsPath = path.resolve(appInfo.path.cwd, "./tools")         //工具目录
+        console.log("toolsPath : " + this.toolsPath)
+        console.log("dataPath : " + this.dataPath)
+        this.mkdir(this.dataPath)
+        this.mkdir(this.apkPath)
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
+        this.loadFileInfos()
     }
-    Util.loadFileList = function() {
-        if (!fs.existsSync(this.file)){ return []; }
-        return JSON.parse(fs.readFileSync(this.file, "utf8"));
+    Util.getFileInfos = function() {
+        return this.fileInfos
     }
-    Util.saveFileList = function(info) {
-        console.log("file : " + this.file);
-        fs.writeFileSync(this.file, JSON.stringify(info));
+    Util.loadFileInfos = function() {
+        if (!fs.existsSync(this.filesName)){ 
+            this.fileInfos = []
+        } else {
+            this.fileInfos = JSON.parse(fs.readFileSync(this.filesName, "utf8"))
+        }
+    }
+    Util.saveFileInfos = function() {
+        console.log("saveFileInfos : " + this.filesName);
+        fs.writeFileSync(this.filesName, JSON.stringify(this.fileInfos, null, 4));
+    }
+    Util.insertFileInfo = function(info) {
+        for (var i in this.fileInfos) {
+            if (this.fileInfos[i]["name"] == info["name"]) {
+                Util.array_removeat(this.fileInfos, i);
+                break;
+            }
+        }
+        Util.array_insert(this.fileInfos, 0, info);
+        Util.saveFileInfos();
+    }
+    Util.removeFileInfo = function(info) {
+
     }
     Util.getAndroidVersion = function(version) {
         var str = AndroidList[version];
@@ -92,15 +132,15 @@ var Util = (function() {
     }
     Util.execute = function(command, cwd, callback) {
         console.log("执行命令行 : " + command);
-        return exec(command, { cwd: toolsPath + cwd}, callback);
+        return exec(command, { cwd: path.resolve(this.toolsPath, cwd) }, callback);
     }
     Util.execCommand = function(command, cwd, args, sh) {
         console.log("command : " + command);
-        if (!IsWindows) {
+        if (!Util.IsWindows()) {
             this.array_insert(args, 0, command);
             command = "sh";
         }
-        var sp = spawn(command, args, { cwd: toolsPath + cwd });
+        var sp = spawn(command, args, { cwd: path.resolve(this.toolsPath, cwd) });
         sp.stdout.on('data', (data) => {
             console.log(iconv.decode(new Buffer(data), "GBK"));
         });

@@ -60,7 +60,18 @@
                     console.log("正在解析文件 : " + file);
                     var parse = new parseAndroid();
                     var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "正在解析apk"});
-                    await parse.init(file);
+                    try {
+                        await parse.init(file);
+                        this.activeName = "app";
+                        var info = await parse.parseInfo();
+                        Util.insertFileInfo(info)
+                        await parse.decompress();
+                        await parse.dex2jar();
+                    } catch (e) {
+                        console.error(e);
+                    } finally {
+                        loading.close();
+                    }
                 });
             }
         }

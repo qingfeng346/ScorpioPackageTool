@@ -7,28 +7,29 @@
         <el-table-column prop="versionCode" label="版本" width="60"></el-table-column>
         <el-table-column prop="sdkVersion" :formatter="formatSdkVersion" label="最低支持版本" width="110"></el-table-column>
         <el-table-column label="操作" width="180">
-            <!-- <template slot-scope="data">
+            <template slot-scope="data">
                 <el-button size="mini" @click="handleOpenFile(data.row)">打开</el-button>
                 <el-button size="mini" type="danger" @click="handleDeleteFile(data.row)">删除</el-button>
-            </template> -->
+            </template>
         </el-table-column>
     </el-table>
 </template>
 
 <script>
-export default {
-    data() {
-        return {
-            fileList: []
-        }
-    },
-    methods: {
-        formatSdkVersion: function() {
-            return "1111"
-        }
+    import { Util } from "../common/Util"
 
+    export default {
+        data() {
+            return {
+                fileList : Util.getFileInfos()
+            }
+        },
+        methods: {
+            formatSdkVersion: function(row, column) {
+                return Util.getAndroidVersion(row.sdkVersion)
+            }
+        }
     }
-}
 </script>
 <style>
 

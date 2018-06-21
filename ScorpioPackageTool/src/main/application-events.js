@@ -28,8 +28,11 @@ ipcMain.on('getAppInfo', function (event) {
       'videos': app.getPath('videos'),
       'logs': app.getPath('logs'),
       'temp': app.getPath('temp'),
-      'exe': app.getPath('exe')
+      'exe': app.getPath('exe'),
+      'cwd' : process.cwd()
     },
+    env : process.env,
+    versions : process.versions,
     name: app.getName(),
     version: app.getVersion(),
     locale: app.getLocale(),

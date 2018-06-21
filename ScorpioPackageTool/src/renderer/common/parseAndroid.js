@@ -11,8 +11,8 @@ var parseAndroid = (function () {
         return new Promise((resolve, reject) => {
             this.file = sourceFile
             this.fileName = path.basename(sourceFile, ".apk");
-            this.targetPath = Util.apkPath + this.fileName;              //目标目录
-            this.targetFile = Util.apkPath + this.fileName + ".apk";     //目标文件
+            this.targetPath = path.resolve(Util.apkPath, this.fileName)                 //目标目录
+            this.targetFile = path.resolve(Util.apkPath, this.fileName + ".apk");       //目标文件
             Util.mkdir(this.targetPath);
             fs.copyFile(sourceFile, this.targetFile, () => {
                 resolve();
@@ -27,10 +27,10 @@ var parseAndroid = (function () {
     }
     parseAndroid.prototype.parseInfo = function() {
         return new Promise((resolve, reject) => {
-            var bat = IsWindows ? "aapt.exe" : "./aapt";
+            var bat = Util.IsWindows() ? "aapt.exe" : "./aapt";
             console.log("开始解析 " + this.fileName + "  AndroidManifest.xml");
             var _this = this;
-            if (!IsWindows) { Util.execute(`chmod +x ${bat}`, "aapt"); }
+            if (!Util.IsWindows()) { Util.execute(`chmod +x ${bat}`, "aapt"); }
             var targetFile = Util.parseArg(this.targetFile);
             Util.execute(`${bat} dump badging ${targetFile}`, "aapt", (err, stdout, stderr) => {
                 if (err) {
@@ -102,7 +102,7 @@ var parseAndroid = (function () {
     }
     parseAndroid.prototype.dex2jar = function() {
         return new Promise((resolve, reject) => {
-            var bat = IsWindows ? "d2j-dex2jar.bat" : "d2j-dex2jar.sh";
+            var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "d2j-dex2jar.sh";
             console.log("开始反编译jar");
             var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"], true);
             sp.on("close", () => {
@@ -113,7 +113,7 @@ var parseAndroid = (function () {
     }
     parseAndroid.prototype.decompress = function() {
         return new Promise((resolve, reject) => {
-            var bat = IsWindows ? "apktool.bat" : "apktool.sh";
+            var bat = Util.IsWindows() ? "apktool.bat" : "apktool.sh";
             var sp = Util.execCommand(bat, "apktool", ["d", "-f", this.targetFile, "-o", this.targetPath + "/source/"], true);
             console.log("开始解压文件 : " + this.fileName);
             sp.on('close', () => {

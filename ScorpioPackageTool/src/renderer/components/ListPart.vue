@@ -17,6 +17,7 @@
 
 <script>
     import { Util } from "../common/Util"
+    import { console } from '../common/logger';
 
     export default {
         data() {
@@ -25,8 +26,14 @@
             }
         },
         methods: {
-            formatSdkVersion: function(row, column) {
-                return Util.getAndroidVersion(row.sdkVersion)
+            handleOpenFile: function(info) {
+                console.log("info : " + info.name);
+            },
+            handleDeleteFile: function(info) {
+
+            },
+            formatSdkVersion: function(info) {
+                return Util.getAndroidVersion(info.sdkVersion)
             }
         }
     }

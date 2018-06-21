@@ -13,7 +13,7 @@
                 <span>版本名称 : {{ fileInfo.versionName }}</span>&nbsp;&nbsp;
                 <span>版本号 : {{ fileInfo.versionCode }}</span>&nbsp;&nbsp;
                 <br/>
-                <span>最小支持版本 : {{ fileInfo.sdkVersion }}</span>
+                <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
             </div>
             <el-button-group>
                 <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
@@ -29,38 +29,76 @@
 </template>
 
 <script>
-export default {
-    data() {
-        return {
-            fileInfo : {                //当前打开apk的详细信息
-                name : "name",
-                label : "label",
-                bundle : "bundle",
-                versionName : "versionName",
-                versionCode : "versionCode",
-                sdkVersion : "sdkVersion",
-                icon : "icon"
-            },
-            iconUrl : "",               //当前打开app 的 icon
-            imageUrl : "",              //屏幕中间显示Image
-            mainEditor : "",            //屏幕中间显示内容
-            defaultProps: {
-                children: 'children',
-                label: 'label'
-            },
-            treeData: [],
-            fileList: []
-        }
-    },
-    methods: {
-        formatSdkVersion: function() {
-            return "1111"
+    import { Util } from "../common/Util"
+    import fs from 'fs';
+    import { shell } from 'electron';
+    export default {
+        mounted() {
+            Util.event.on("updateInfo", (info) => {
+                this.fileInfo = info
+                this.iconUrl = Util.getAppIcon(info)
+                this.refreshTreeList()
+            })
         },
-        OnClickTree: function() {
+        data() {
+            return {
+                fileInfo : {},              //当前打开apk的详细信息
+                iconUrl : "",               //当前打开app 的 icon
+                imageUrl : "",              //屏幕中间显示Image
+                mainEditor : "",            //屏幕中间显示内容
+                defaultProps: {
+                    children: 'children',
+                    label: 'label'
+                },
+                treeData: [],
+                fileList: []
+            }
+        },
+        methods: {
+            getAndroidVersion : function(version) {
+                return Util.getAndroidVersion(version)
+            },
+            refreshTreeList : async function() {
+                var path = Util.apkPath + "/" + this.fileInfo.name + "/source";
+                var data = []
+                await this.refreshTreeList_impl(path, "", data);
+                this.treeData = data
+            },
+            refreshTreeList_impl : async function(path, relativePath, arr) {
+                var files = await Util.readdir(path);
+                for (var file of files) {
+                    var fullFile = path + "/" + file;
+                    var relativeFile = relativePath + "/" + file;
+                    var info = fs.statSync(fullFile);
+                    if (info.isDirectory()) {
+                        var children = []
+                        await this.refreshTreeList_impl(fullFile, relativeFile, children);
+                        arr.push({
+                            "label" : file,
+                            "file" : false,
+                            "children" : children
+                        })
+                    } else {
+                        arr.push({
+                            "label" : file,
+                            "file" : true,
+                            "relativePath" : relativeFile,
+                            "path" : fullFile
+                        })
+                    }
+                }
+            },
+            OnClickTree: function() {
 
+            },
+            OnClickOpenSource : function() {
+                Util.execute("java -jar jd-gui.jar " + Util.apkPath + "/" + this.fileInfo.name + "/source.jar", "jd-gui");
+            },
+            OnClickOpenFolder : function() {
+                shell.showItemInFolder(Util.apkPath + "/" + this.fileInfo.name + "/source");
+            }
         }
     }
-}
 </script>
 <style>
 

@@ -14,7 +14,7 @@
         </el-header>
         <el-tabs v-model='activeName' style="margin: 10px 10px;" @tab-click="handleTabClick">
             <el-tab-pane label="应用列表" name="list"></el-tab-pane>
-            <el-tab-pane label="应用信息" name="app"></el-tab-pane>
+            <el-tab-pane v-if="showApp" label="应用信息" name="app"></el-tab-pane>
         </el-tabs>
         <ListPart v-show="activeName == 'list'"></ListPart>
         <PackagePart v-show="activeName == 'app'"></PackagePart>
@@ -40,6 +40,7 @@
             return {
                 logTag : "",
                 activeName : "list",
+                showApp : false,
             }
         },
         methods: {
@@ -62,11 +63,13 @@
                     var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "正在解析apk"});
                     try {
                         await parse.init(file);
-                        this.activeName = "app";
                         var info = await parse.parseInfo();
                         Util.insertFileInfo(info)
                         await parse.decompress();
                         await parse.dex2jar();
+                        this.showApp = true
+                        this.activeName = "app";
+                        Util.event.emit("updateInfo", info)
                     } catch (e) {
                         console.error(e);
                     } finally {

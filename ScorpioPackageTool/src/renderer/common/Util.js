@@ -2,6 +2,7 @@ const fs = require("fs")
 const os = require("os")
 const path = require('path')
 const iconv = require("iconv-lite")
+const events = require('events')
 import { ipcRenderer } from "electron";
 import { spawn, exec } from "child_process";
 import { Notification } from "element-ui";
@@ -76,6 +77,7 @@ var Util = (function() {
         console.log("dataPath : " + this.dataPath)
         this.mkdir(this.dataPath)
         this.mkdir(this.apkPath)
+        this.event = new events()
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
         this.loadFileInfos()
     }
@@ -102,9 +104,13 @@ var Util = (function() {
         }
         Util.array_insert(this.fileInfos, 0, info);
         Util.saveFileInfos();
+        this.event.emit("updateInfos")
     }
     Util.removeFileInfo = function(info) {
 
+    }
+    Util.getAppIcon = function(info) {
+        return this.apkPath + "/" + info.name + "/source/" + info.icon;
     }
     Util.getAndroidVersion = function(version) {
         var str = AndroidList[version];

@@ -20,6 +20,11 @@
     import { console } from '../common/logger';
 
     export default {
+        mounted() {
+            Util.event.on("updateInfos", () => {
+                this.fileList = Util.getFileInfos()
+            })
+        },
         data() {
             return {
                 fileList : Util.getFileInfos()

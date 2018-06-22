@@ -1,5 +1,5 @@
 <template>
-    <el-table :data="fileList" style="width: 100%" border="" >
+    <el-table :data="fileList" style="width: 100%;" height="100%" border >
         <el-table-column prop="name" label="名称" width="180"></el-table-column>
         <el-table-column prop="label" label="应用名" width="150"></el-table-column>
         <el-table-column prop="bundle" label="Bundle Identifier" width="180"></el-table-column>

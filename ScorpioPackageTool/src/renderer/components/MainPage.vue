@@ -16,8 +16,14 @@
             <el-tab-pane label="应用列表" name="list"></el-tab-pane>
             <el-tab-pane v-if="showApp" label="应用信息" name="app"></el-tab-pane>
         </el-tabs>
-        <ListPart v-show="activeName == 'list'"></ListPart>
-        <PackagePart v-show="activeName == 'app'"></PackagePart>
+        <el-container style="height: 100%">
+            
+            <el-main style="height: 100%">
+                <ListPart v-show="activeName == 'list'"></ListPart>
+                <PackagePart v-show="activeName == 'app'"></PackagePart>
+            </el-main>
+            <el-footer>Footer</el-footer>
+        </el-container>
     </el-container>
 </template>
 <script>

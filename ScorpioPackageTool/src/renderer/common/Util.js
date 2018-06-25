@@ -188,7 +188,7 @@ var Util = (function() {
         if (arg.indexOf(" ") < 0) {
             return arg;
         }
-        if (IsWindows) {
+        if (this.IsWindows()) {
             arg = "\"" + arg + "\"";
         } else {
             arg = arg.replace(/ /g, "\\ ");

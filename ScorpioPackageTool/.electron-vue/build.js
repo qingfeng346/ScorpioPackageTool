@@ -123,7 +123,7 @@ function copyTool(appPaths) {
     if (buildConfig.platform == "win32") {
       dir = path.resolve(appPath, "resources/tools")
     } else {
-      dir = path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources")
+      dir = path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources/tools")
     }
     console.log("复制所有工具 : " + dir)
     copydir.sync(path.resolve(process.cwd(), "tools"), dir)

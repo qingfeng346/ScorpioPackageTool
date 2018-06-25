@@ -22,7 +22,7 @@
                 <ListPart v-show="activeName == 'list'"></ListPart>
                 <PackagePart v-show="activeName == 'app'"></PackagePart>
             </el-main>
-            <el-footer>Footer</el-footer>
+            <el-footer style="height: 30px" v-html="logOutput"></el-footer>
         </el-container>
     </el-container>
 </template>
@@ -42,12 +42,16 @@
                 this.showApp = true
                 this.activeName = "app";
             })
+            logger.event.on("log", (level, str) => {
+                this.logOutput = str
+            })
         },
         data() {
             return {
                 logTag : "",
                 activeName : "list",
                 showApp : false,
+                logOutput : "",
             }
         },
         methods: {

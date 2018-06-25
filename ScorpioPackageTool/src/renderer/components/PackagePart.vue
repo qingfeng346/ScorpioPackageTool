@@ -4,7 +4,13 @@
             <el-tree :data="treeData" :props="defaultProps" empty-text="正在加载文件列表..." @node-click="OnClickTree"></el-tree>
         </el-aside>
         <el-container style="height: 100%">
-            <el-header style="font-size: 14px;min-width: 800px;">
+            <el-header style="font-size: 14px;">
+                <el-button-group>
+                    <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
+                    <el-button type="primary" v-on:click="OnClickOpenFolder()">打开目录</el-button>
+                </el-button-group>
+                <br>
+                <br>
                 <img v-bind:src="iconUrl" style="float: left; margin-right: 5px;"/>
                 <div style="float: left;">
                     <span>应用名称 : {{ fileInfo.label }}</span>&nbsp;&nbsp;
@@ -15,10 +21,7 @@
                     <br/>
                     <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
                 </div>
-                <el-button-group>
-                    <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
-                    <el-button type="primary" v-on:click="OnClickOpenFolder()">打开目录</el-button>
-                </el-button-group>
+
             </el-header>
             <el-main>
                 <img style="background-color: white" v-bind:src="imageUrl"/>

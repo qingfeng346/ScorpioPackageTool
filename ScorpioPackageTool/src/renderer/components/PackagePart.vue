@@ -1,27 +1,27 @@
 <template>
-    <el-container>
+    <el-container style="height: 100%">
         <el-aside width="220px" style="background-color: rgb(238, 241, 246)">
             <el-tree :data="treeData" :props="defaultProps" empty-text="正在加载文件列表..." @node-click="OnClickTree"></el-tree>
         </el-aside>
-        <el-container>
+        <el-container style="height: 100%">
             <el-header style="font-size: 14px;min-width: 800px;">
-            <img v-bind:src="iconUrl" style="float: left; margin-right: 5px;"/>
-            <div style="float: left;">
-                <span>应用名称 : {{ fileInfo.label }}</span>&nbsp;&nbsp;
-                <span>应用标识 : {{ fileInfo.bundle }}</span>
-                <br/>
-                <span>版本名称 : {{ fileInfo.versionName }}</span>&nbsp;&nbsp;
-                <span>版本号 : {{ fileInfo.versionCode }}</span>&nbsp;&nbsp;
-                <br/>
-                <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
-            </div>
-            <el-button-group>
-                <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
-                <el-button type="primary" v-on:click="OnClickOpenFolder()">打开目录</el-button>
-            </el-button-group>
+                <img v-bind:src="iconUrl" style="float: left; margin-right: 5px;"/>
+                <div style="float: left;">
+                    <span>应用名称 : {{ fileInfo.label }}</span>&nbsp;&nbsp;
+                    <span>应用标识 : {{ fileInfo.bundle }}</span>
+                    <br/>
+                    <span>版本名称 : {{ fileInfo.versionName }}</span>&nbsp;&nbsp;
+                    <span>版本号 : {{ fileInfo.versionCode }}</span>&nbsp;&nbsp;
+                    <br/>
+                    <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
+                </div>
+                <el-button-group>
+                    <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
+                    <el-button type="primary" v-on:click="OnClickOpenFolder()">打开目录</el-button>
+                </el-button-group>
             </el-header>
             <el-main>
-            <img style="background-color: white" v-bind:src="imageUrl"/>
+                <img style="background-color: white" v-bind:src="imageUrl"/>
                 <pre><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
             </el-main>
         </el-container>
@@ -88,8 +88,16 @@
                     }
                 }
             },
-            OnClickTree: function() {
-
+            OnClickTree: async function(data) {
+                if (data.file) {
+                    if (data.path.endWith(".png") || data.path.endWith(".jpg") || data.path.endWith(".ico")) {
+                        this.imageUrl = Util.apkPath + "/" + this.fileInfo.name + "/source/" + data.relativePath
+                        this.mainEditor = ""
+                    } else {
+                        this.imageUrl = ""
+                        this.mainEditor = await Util.readFile(data.path)
+                    }
+                }
             },
             OnClickOpenSource : function() {
                 Util.execute("java -jar jd-gui.jar " + Util.apkPath + "/" + this.fileInfo.name + "/source.jar", "jd-gui");

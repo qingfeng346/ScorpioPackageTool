@@ -119,9 +119,14 @@ function bundleApp () {
 }
 function copyTool(appPaths) {
   for (var appPath of appPaths) {
-    var dir = path.resolve(appPath, "tools")
+    var dir = ""
+    if (buildConfig.platform == "win32") {
+      dir = path.resolve(appPath, "resources/tools")
+    } else {
+      dir = path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources")
+    }
     console.log("复制所有工具 : " + dir)
-    copydir.sync( path.resolve(process.cwd(), "tools"), dir)
+    copydir.sync(path.resolve(process.cwd(), "tools"), dir)
   }
 }
 

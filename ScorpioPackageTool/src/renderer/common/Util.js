@@ -72,7 +72,12 @@ var Util = (function() {
         this.dataPath = path.resolve(appInfo.path.userData, "./datas")     //数据存放目录
         this.apkPath = path.resolve(this.dataPath, "./apks")               //apk存放目录
         this.filesName = path.resolve(this.dataPath, "files.json")         //解析文件列表
-        this.toolsPath = path.resolve(appInfo.path.cwd, "./tools")         //工具目录
+        if (process.env.NODE_ENV === 'development') {
+            this.toolsPath = path.resolve(appInfo.path.cwd, "./tools")         //工具目录
+        } else {
+            this.toolsPath = path.resolve(appInfo.path.appPath, "../tools")
+        }
+        
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
         this.mkdir(this.dataPath)

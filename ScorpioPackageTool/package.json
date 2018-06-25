@@ -1,7 +1,7 @@
 {
   "name": "ScorpioPackageTool",
   "productName": "ScorpioPackageTool",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "author": "while <while@while.com>",
   "description": "An electron-vue project",
   "license": "",

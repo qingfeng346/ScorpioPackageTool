@@ -37,7 +37,7 @@
                 Util.event.emit("updateInfo", info)
             },
             OnClickDeleteFile: function(info) {
-
+                Util.removeFileInfo(info)
             },
             formatSdkVersion: function(info) {
                 return Util.getAndroidVersion(info.sdkVersion)

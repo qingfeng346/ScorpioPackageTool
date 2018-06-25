@@ -107,7 +107,17 @@ var Util = (function() {
         this.event.emit("updateInfos")
     }
     Util.removeFileInfo = function(info) {
-
+        if (info == null) { return }
+        for (var i in this.fileInfos) {
+            if (this.fileInfos[i]["name"] == info["name"]) {
+                Util.array_removeat(this.fileInfos, i);
+                break;
+            }
+        }
+        Util.saveFileInfos();
+        this.event.emit("updateInfos")
+        fs.unlinkSync(this.apkPath + "/" + info.name + ".apk")
+        this.rmdirRecursive(this.apkPath + "/" + info.name)
     }
     Util.getAppIcon = function(info) {
         return this.apkPath + "/" + info.name + "/source/" + info.icon;
@@ -125,6 +135,20 @@ var Util = (function() {
     Util.mkdir = function(dir) {
         if (!fs.existsSync(dir)) { fs.mkdirSync(dir); }
     }
+    Util.rmdirRecursive = function(dir) {
+        if (fs.existsSync(dir)) {
+            var files = fs.readdirSync(dir)
+            for (var file of files) {
+                var curPath = dir + "/" + file;
+                if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                    this.rmdirRecursive(curPath);
+                } else {
+                    fs.unlinkSync(curPath);
+                }
+            }
+            fs.rmdirSync(dir);
+        }
+    };
     Util.readFile = function(file) {
         return new Promise((resolve, reject) => {
             fs.readFile(file, "utf8", (err, data) => {

@@ -3,6 +3,8 @@
 process.env.NODE_ENV = 'production'
 
 const { say } = require('cfonts')
+const copydir = require('copy-dir')
+const path = require('path')
 const chalk = require('chalk')
 const del = require('del')
 const packager = require('electron-packager')
@@ -116,10 +118,11 @@ function bundleApp () {
   })
 }
 function copyTool(appPaths) {
-  for (var path of appPaths) {
-    console.log("path = " + path);
+  for (var appPath of appPaths) {
+    var dir = path.resolve(appPath, "tools")
+    console.log("复制所有工具 : " + dir)
+    copydir.sync( path.resolve(process.cwd(), "tools"), dir)
   }
-  console.log("===================copyTool : " + appPaths + "   " + typeof appPaths);
 }
 
 function web () {

@@ -38,9 +38,10 @@
         name:"main-page",
         components : { ListPart, PackagePart },
         mounted() {
-            // logger.event.on("log", (str) => {
-            //     window.console.log("ffffffffffffffffffffff " + str);
-            // })
+            Util.event.on("showApp", () => {
+                this.showApp = true
+                this.activeName = "app";
+            })
         },
         data() {
             return {
@@ -73,8 +74,7 @@
                         Util.insertFileInfo(info)
                         await parse.decompress();
                         await parse.dex2jar();
-                        this.showApp = true
-                        this.activeName = "app";
+                        Util.event.emit("showApp")
                         Util.event.emit("updateInfo", info)
                     } catch (e) {
                         console.error(e);

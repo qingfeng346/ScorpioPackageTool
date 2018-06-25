@@ -8,8 +8,8 @@
         <el-table-column prop="sdkVersion" :formatter="formatSdkVersion" label="最低支持版本" width="110"></el-table-column>
         <el-table-column label="操作" width="180">
             <template slot-scope="data">
-                <el-button size="mini" @click="handleOpenFile(data.row)">打开</el-button>
-                <el-button size="mini" type="danger" @click="handleDeleteFile(data.row)">删除</el-button>
+                <el-button size="mini" @click="OnClickOpenFile(data.row)">打开</el-button>
+                <el-button size="mini" type="danger" @click="OnClickDeleteFile(data.row)">删除</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -31,10 +31,12 @@
             }
         },
         methods: {
-            handleOpenFile: function(info) {
-                console.log("info : " + info.name);
+            OnClickOpenFile: function(info) {
+                Util.insertFileInfo(info)
+                Util.event.emit("showApp")
+                Util.event.emit("updateInfo", info)
             },
-            handleDeleteFile: function(info) {
+            OnClickDeleteFile: function(info) {
 
             },
             formatSdkVersion: function(info) {

@@ -165,19 +165,29 @@ var Util = (function() {
             });
         });
     }
+    Util.executeJar = function(command, cwd, callback) {
+
+    }
+    Util.executeExe = function(command, cwd, callback) {
+        var bat = command.substring(0, command.indexOf(" "))
+        this.execute(`chmod +x ${bat}`, "aapt"); 
+        this.execute(command, cwd, callback)
+    }
     Util.execute = function(command, cwd, callback) {
-        console.log("执行命令行 : " + command);
+        console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
         return exec(command, { cwd: path.resolve(this.toolsPath, cwd) }, callback);
     }
     Util.execCommand = function(command, cwd, args, sh) {
-        console.log("command : " + command);
+        var strArgs = ""
+        for (var arg of args) { strArgs += " " + arg; }
+        console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command + strArgs);
         if (!Util.IsWindows()) {
             this.array_insert(args, 0, command);
             command = "sh";
         }
         var sp = spawn(command, args, { cwd: path.resolve(this.toolsPath, cwd) });
         sp.stdout.on('data', (data) => {
-            console.log(iconv.decode(new Buffer(data), "GBK"));
+            console.log(data.toString())
         });
         sp.stderr.on('error', (data) => {
             console.log("exec is error : " + iconv.decode(new Buffer(data), "GBK"));

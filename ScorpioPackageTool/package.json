@@ -7,6 +7,7 @@
   "license": "",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "start": "node .electron-vue/dev-runner.js",
     "build": "node .electron-vue/build.js",
     "build:darwin": "cross-env BUILD_TARGET=darwin node .electron-vue/build.js",
     "build:linux": "cross-env BUILD_TARGET=linux node .electron-vue/build.js",

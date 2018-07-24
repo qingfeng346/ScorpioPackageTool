@@ -28,11 +28,10 @@ var parseAndroid = (function () {
     parseAndroid.prototype.parseInfo = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "aapt.exe" : "./aapt";
-            console.log("开始解析 " + this.fileName + "  AndroidManifest.xml");
+            console.log("开始解析 " + this.fileName + " -> AndroidManifest.xml");
             var _this = this;
-            if (!Util.IsWindows()) { Util.execute(`chmod +x ${bat}`, "aapt"); }
             var targetFile = Util.parseArg(this.targetFile);
-            Util.execute(`${bat} dump badging ${targetFile}`, "aapt", (err, stdout, stderr) => {
+            Util.executeExe(`${bat} dump badging ${targetFile}`, "aapt", (err, stdout, stderr) => {
                 if (err) {
                     console.log("解析 AndroidManifest.xml 失败 : " + err.stack);
                     reject(err.stack);
@@ -103,8 +102,8 @@ var parseAndroid = (function () {
     parseAndroid.prototype.dex2jar = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "d2j-dex2jar.sh";
-            console.log("开始反编译jar");
             var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"], true);
+            console.log("开始反编译jar");
             sp.on("close", () => {
                 console.log("反编译jar完成")
                 resolve();

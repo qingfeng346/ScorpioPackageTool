@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const Util = require('./Util.js').Util;
 const console = require('./logger.js').logger;
+const iconv = require("iconv-lite")
 
 var parseAndroid = (function () {
     function parseAndroid() {
@@ -89,19 +90,18 @@ var parseAndroid = (function () {
         this.apkInfo = apkInfo;
     }
     parseAndroid.prototype.createManifest = function() {
-        var bat = "AXMLPrinter2.jar";
         var source = Util.parseArg(this.targetPath + "/source/original/AndroidManifest.xml");
         var target = Util.parseArg(this.targetPath + "/AndroidManifest.xml");
-        Util.execute(`java -jar ${bat} ${source} > ${target}`, "AXMLPrinter2", (err, stdout, stderr) => {
+        Util.executeJar(`AXMLPrinter2.jar ${source} > ${target}`, "AXMLPrinter2", (err, stdout, stderr) => {
             if (err) {
-                console.log("createManifest 失败 : " + err.stack);
+                console.log("createManifest 失败 : " + Util.toUTF8(err.stack));
                 return;
             }
         });
     }
     parseAndroid.prototype.dex2jar = function() {
         return new Promise((resolve, reject) => {
-            var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "d2j-dex2jar.sh";
+            var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "./d2j-dex2jar.sh";
             var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"], true);
             console.log("开始反编译jar");
             sp.on("close", () => {
@@ -112,7 +112,7 @@ var parseAndroid = (function () {
     }
     parseAndroid.prototype.decompress = function() {
         return new Promise((resolve, reject) => {
-            var bat = Util.IsWindows() ? "apktool.bat" : "apktool.sh";
+            var bat = Util.IsWindows() ? "apktool.bat" : "./apktool.sh";
             var sp = Util.execCommand(bat, "apktool", ["d", "-f", this.targetFile, "-o", this.targetPath + "/source/"], true);
             console.log("开始解压文件 : " + this.fileName);
             sp.on('close', () => {

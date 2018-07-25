@@ -29,7 +29,7 @@ var parseAndroid = (function () {
     parseAndroid.prototype.parseInfo = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "aapt.exe" : "./aapt";
-            console.log("开始解析 " + this.fileName + " -> AndroidManifest.xml");
+            console.log("开始解析文件 " + this.fileName + " -> AndroidManifest.xml");
             var _this = this;
             var targetFile = Util.parseArg(this.targetFile);
             Util.executeExe(`${bat} dump badging ${targetFile}`, "aapt", (err, stdout, stderr) => {

@@ -103,7 +103,7 @@
                 }
             },
             OnClickOpenSource : function() {
-                Util.execute("java -jar jd-gui.jar " + Util.apkPath + "/" + this.fileInfo.name + "/source.jar", "jd-gui");
+                Util.executeJar("jd-gui.jar " + Util.apkPath + "/" + this.fileInfo.name + "/source.jar", "jd-gui");
             },
             OnClickOpenFolder : function() {
                 shell.showItemInFolder(Util.apkPath + "/" + this.fileInfo.name + "/source");

@@ -3,9 +3,10 @@ const os = require("os")
 const path = require('path')
 const iconv = require("iconv-lite")
 const events = require('events')
+const open = require('open')
 import { ipcRenderer } from "electron";
-import { spawn, exec } from "child_process";
-import { Notification } from "element-ui";
+import { spawn, exec, execSync } from "child_process";
+import { Message, Notification, MessageBox } from "element-ui";
 import { console } from "./logger";
 
 const AndroidList = {
@@ -77,7 +78,6 @@ var Util = (function() {
         } else {
             this.toolsPath = path.resolve(appInfo.path.appPath, "../tools")
         }
-        
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
         this.mkdir(this.dataPath)
@@ -85,6 +85,7 @@ var Util = (function() {
         this.event = new events()
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
         this.loadFileInfos()
+        this.checkJavaEnviroment()
     }
     Util.getFileInfos = function() {
         return this.fileInfos
@@ -166,7 +167,7 @@ var Util = (function() {
         });
     }
     Util.executeJar = function(command, cwd, callback) {
-        this.execute("java -jar " + command, cwd, callback)
+        this.execute("java jar " + command, cwd, callback)
     }
     Util.executeExe = function(command, cwd, callback) {
         var bat = command.substring(0, command.indexOf(" "))
@@ -175,7 +176,11 @@ var Util = (function() {
     }
     Util.execute = function(command, cwd, callback) {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
-        return exec(command, { cwd: path.resolve(this.toolsPath, cwd) }, callback);
+        return exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, encoding: "utf8" }, callback);
+    }
+    Util.executeSync = function(command, cwd) {
+        console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
+        return execSync(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, encoding: "binary" });
     }
     Util.execCommand = function(command, cwd, args, sh) {
         var strArgs = ""
@@ -191,12 +196,12 @@ var Util = (function() {
             console.log(data.toString())
         });
         sp.stderr.on('error', (data) => {
-            console.log("exec is error : " + iconv.decode(new Buffer(data), "GBK"));
+            console.log("exec is error : " + data.toString());
         });
         return sp;
     }
-    Util.toUTF8 = function(data) {
-        return iconv.decode(new Buffer(data), "GBK")
+    Util.getString = function(data) {
+        return iconv.decode(new Buffer(data, 'binary'), "cp936")
     }
     Util.parseArg = function(arg) {
         if (arg.indexOf(" ") < 0) {
@@ -227,7 +232,7 @@ var Util = (function() {
         });
     }
     Util.showMessage = function(title, message) {
-        Notification.info({
+        Notification.success({
             title : title,
             message : message
         })
@@ -243,6 +248,36 @@ var Util = (function() {
         var callback = ShowOpenDialogCallback
         ShowOpenDialogCallback = undefined
         if (callback) callback(files, args)
+    }
+    Util.checkJavaEnviroment = function() {
+        var javaInfo = this.getJavaInfo()
+        if (javaInfo) {
+            Message.success({
+                message: "Java 版本 : " + javaInfo.version + "<br>" + "Java 目录 : " + javaInfo.home,
+                dangerouslyUseHTMLString: true,
+                center: true
+            })
+        } else {
+            MessageBox.confirm("检测不到系统Java环境,点击去下载.", "错误", {
+                confirmButtonText: '去下载',
+                cancelButtonText: '取消',
+                type: 'error'
+            }).then(() => {
+                open("http://www.oracle.com/technetwork/java/javase/downloads/index.html")
+            }).catch(() => {
+                console.log("点击取消")
+            });
+        }
+    }
+    Util.getJavaInfo = function() {
+        try {
+            var version = this.executeSync("java -jar JavaInfo.jar java.version", "JavaInfo");
+            var home = this.executeSync("java -jar JavaInfo.jar java.home", "JavaInfo");
+            return {"version" : version, "home" : home}
+        } catch (e) {
+            console.log("getJavaInfo is error : " + this.getString(e.stderr))
+        }
+        return undefined
     }
     return Util;
 }());

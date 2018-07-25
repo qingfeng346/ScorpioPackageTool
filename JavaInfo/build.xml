@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="build" default="dist" basedir=".">
+    <property file="build.properties"></property>								<!-- 配置文件 -->
+	<property name="src" location="src"/>										<!-- 源码目录 -->
+	<property name="build" location="build"/>									<!-- 生成目录 -->
+	<property name="build.classes" location="${build}/classes"/>				<!-- 生成class目录 -->
+	<!-- 删除build文件夹 -->
+	<target name="clean"> 
+	    <echo message="ant版本号 : ${ant.version}"/>
+        <echo message="Java版本号 : ${ant.java.version}"/>
+		<delete dir="${build}"/>
+		<echo message="清空编译目录"/>
+	</target>
+	<!-- 创建build,classes文件夹 -->
+	<target name="init" depends="clean">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${build.classes}"/>
+	</target>
+	<!-- 需要的所有jar库 -->
+	<path id="classpath">
+		
+	</path>
+	<!-- 编译所有java文件 -->
+	<target name="compile" depends="init">
+		<echo message="开始编译所有java文件"/>
+		<javac srcdir="${src}" destdir="${build.classes}" encoding="utf8" optimize="on" debug="on" nowarn="off" includeantruntime="false">
+		    <classpath refid="classpath"/>
+		    <compilerarg value="-Xlint:unchecked"/>
+		</javac>
+	</target>
+	<!-- 生成jar执行文件 -->
+	<target name="jar" depends="compile">
+		<jar destfile="${build}/${export}.jar">
+			<fileset dir="${build.classes}"/>
+			<manifest>
+			    <attribute name="Main-Class" value="${main}" />
+			</manifest>
+		</jar>
+	</target>
+	<!-- 生成执行目录 -->
+	<target name="dist" depends="jar">
+		
+	</target>
+</project>

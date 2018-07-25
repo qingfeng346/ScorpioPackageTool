@@ -3,3 +3,5 @@
 /build
 /nodejs/node_modules
 /nodejs/tools/jd-gui/jd-gui.cfg
+/JavaInfo/build
+/JavaInfo/bin

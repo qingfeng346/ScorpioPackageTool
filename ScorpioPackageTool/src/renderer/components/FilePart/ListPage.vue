@@ -18,6 +18,7 @@
 <script>
     import { Util } from "../../common/Util"
     import { console } from '../../common/logger';
+import { Loading } from 'element-ui';
 
     export default {
         mounted() {
@@ -36,8 +37,13 @@
                 Util.event.emit("showApp")
                 Util.event.emit("updateInfo", info)
             },
-            OnClickDeleteFile: function(info) {
-                Util.removeFileInfo(info)
+            OnClickDeleteFile: async function(info) {
+                var loading = Loading.service({text : "正在删除"})
+                try {
+                    await Util.removeFileInfo(info)
+                } finally {
+                    loading.close()
+                }
             },
             formatSdkVersion: function(info) {
                 return Util.getAndroidVersion(info.sdkVersion)

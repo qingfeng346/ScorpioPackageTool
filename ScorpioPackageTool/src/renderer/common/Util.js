@@ -143,7 +143,7 @@ var Util = (function() {
         Util.saveFileInfos();
         this.event.emit("updateInfos")
     }
-    Util.removeFileInfo = function(info) {
+    Util.removeFileInfo = async function(info) {
         if (info == null) { return }
         for (var i in this.fileInfos) {
             if (this.fileInfos[i]["name"] == info["name"]) {

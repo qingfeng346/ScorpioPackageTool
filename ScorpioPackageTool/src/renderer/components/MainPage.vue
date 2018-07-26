@@ -21,13 +21,14 @@
 <script>
     import FilePage from './FilePart/MainPage';
     import { console, logger } from '../common/logger';
+    import { Util } from '../common/Util';
     export default {
-        name:"main-page",
         components : { FilePage },
         mounted() {
             logger.event.on("log", (level, str) => {
                 this.logOutput = str
             })
+            Util.activeMenu = this.activeMenu
         },
         data() {
             return {
@@ -37,8 +38,9 @@
         },
         methods: {
             OnSelectMenu: function(index) {
-                console.log("打开界面 : " + index)
+                if (this.activeMenu == index) { return; }
                 this.activeMenu = index
+                Util.activeMenu = index
             }
         }
     }

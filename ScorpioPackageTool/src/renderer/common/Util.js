@@ -6,7 +6,7 @@ const events = require('events')
 const open = require('open')
 import { ipcRenderer } from "electron";
 import { spawn, exec, execSync } from "child_process";
-import { Message, Notification, MessageBox } from "element-ui";
+import { Message, Notification, MessageBox, Loading } from "element-ui";
 import { console } from "./logger";
 
 const AndroidList = {
@@ -80,12 +80,43 @@ var Util = (function() {
         }
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
+        this.activeMenu = ""
         this.mkdir(this.dataPath)
         this.mkdir(this.apkPath)
         this.event = new events()
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
         this.loadFileInfos()
         this.checkJavaEnviroment()
+        this.initDragFiles()
+    }
+    Util.initDragFiles = function() {
+        document.ondragstart = function(e) {
+            e.preventDefault();
+            // console.log("ondragstart")
+        }
+        document.ondragenter = function(e) {
+            e.preventDefault();
+            // console.log("ondragenter")
+            // var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "拖拽打开文件"});
+        }
+        document.ondragleave = function(e) {
+            e.preventDefault();
+            // window.console.log(e.target)
+        }
+        document.ondrag = function(e) {
+            e.preventDefault();
+            // console.log("ondrag")
+        }
+        document.ondragover = function (e) {
+            e.preventDefault();
+            // console.log("ondragover")
+        };
+        document.ondrop = function (e) {
+            e.preventDefault();
+            var files = e.dataTransfer.files;
+            if (files.length == 0) { return; }
+            Util.event.emit("dropFiles", files)
+        }
     }
     Util.getFileInfos = function() {
         return this.fileInfos
@@ -98,7 +129,7 @@ var Util = (function() {
         }
     }
     Util.saveFileInfos = function() {
-        console.log("saveFileInfos : " + this.filesName);
+        //console.log("saveFileInfos : " + this.filesName);
         fs.writeFileSync(this.filesName, JSON.stringify(this.fileInfos, null, 4));
     }
     Util.insertFileInfo = function(info) {
@@ -167,20 +198,20 @@ var Util = (function() {
         });
     }
     Util.executeJar = function(command, cwd, callback) {
-        this.execute("java jar " + command, cwd, callback)
+        this.execute("java -jar " + command, cwd, callback)
     }
     Util.executeExe = function(command, cwd, callback) {
         var bat = command.substring(0, command.indexOf(" "))
         this.execute(`chmod +x ${bat}`, cwd); 
         this.execute(command, cwd, callback)
     }
-    Util.execute = function(command, cwd, callback) {
+    Util.execute = function(command, cwd, callback, binary) {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
-        return exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, encoding: "utf8" }, callback);
+        return exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, callback);
     }
     Util.executeSync = function(command, cwd) {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
-        return execSync(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, encoding: "binary" });
+        return execSync(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined});
     }
     Util.execCommand = function(command, cwd, args, sh) {
         var strArgs = ""
@@ -201,7 +232,7 @@ var Util = (function() {
         return sp;
     }
     Util.getString = function(data) {
-        return iconv.decode(new Buffer(data, 'binary'), "cp936")
+        return iconv.decode(new Buffer(data), "utf8")
     }
     Util.parseArg = function(arg) {
         if (arg.indexOf(" ") < 0) {
@@ -252,10 +283,10 @@ var Util = (function() {
     Util.checkJavaEnviroment = function() {
         var javaInfo = this.getJavaInfo()
         if (javaInfo) {
-            Message.success({
-                message: "Java 版本 : " + javaInfo.version + "<br>" + "Java 目录 : " + javaInfo.home,
+            Notification.success({
+                message: "检测到Java版本:" + javaInfo.version,
                 dangerouslyUseHTMLString: true,
-                center: true
+                position: 'bottom-left'
             })
         } else {
             MessageBox.confirm("检测不到系统Java环境,点击去下载.", "错误", {
@@ -265,7 +296,7 @@ var Util = (function() {
             }).then(() => {
                 open("http://www.oracle.com/technetwork/java/javase/downloads/index.html")
             }).catch(() => {
-                console.log("点击取消")
+                //console.log("点击取消")
             });
         }
     }
@@ -275,7 +306,7 @@ var Util = (function() {
             var home = this.executeSync("java -jar JavaInfo.jar java.home", "JavaInfo");
             return {"version" : version, "home" : home}
         } catch (e) {
-            console.log("getJavaInfo is error : " + this.getString(e.stderr))
+            // console.log("getJavaInfo is error : " + this.getString(e.stderr))
         }
         return undefined
     }

@@ -94,10 +94,10 @@ var parseAndroid = (function () {
         var target = Util.parseArg(this.targetPath + "/AndroidManifest.xml");
         Util.executeJar(`AXMLPrinter2.jar ${source} > ${target}`, "AXMLPrinter2", (err, stdout, stderr) => {
             if (err) {
-                console.log("createManifest 失败 : " + Util.toUTF8(err.stack));
+                console.log("createManifest 失败 : " + stderr);
                 return;
             }
-        });
+        }, true);
     }
     parseAndroid.prototype.dex2jar = function() {
         return new Promise((resolve, reject) => {

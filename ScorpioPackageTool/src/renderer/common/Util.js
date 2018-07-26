@@ -157,7 +157,7 @@ var Util = (function() {
         this.rmdirRecursive(this.apkPath + "/" + info.name)
     }
     Util.getAppIcon = function(info) {
-        return this.apkPath + "/" + info.name + "/source/" + info.icon;
+        return "file://" + this.apkPath + "/" + info.name + "/source/" + info.icon;
     }
     Util.getAndroidVersion = function(version) {
         var str = AndroidList[version];
@@ -202,7 +202,7 @@ var Util = (function() {
     }
     Util.executeExe = function(command, cwd, callback) {
         var bat = command.substring(0, command.indexOf(" "))
-        this.execute(`chmod +x ${bat}`, cwd); 
+        this.executeSync(`chmod +x ${bat}`, cwd); 
         this.execute(command, cwd, callback)
     }
     Util.execute = function(command, cwd, callback, binary) {
@@ -216,12 +216,8 @@ var Util = (function() {
     Util.execCommand = function(command, cwd, args, sh) {
         var strArgs = ""
         for (var arg of args) { strArgs += " " + arg; }
+        this.executeSync(`chmod +x ${command}`, cwd); 
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command + strArgs);
-        // if (!Util.IsWindows()) {
-        //     this.array_insert(args, 0, command);
-        //     command = "sh";
-        // }
-        this.execute(`chmod +x ${command}`, cwd); 
         var sp = spawn(command, args, { cwd: path.resolve(this.toolsPath, cwd) });
         sp.stdout.on('data', (data) => {
             console.log(data.toString())

@@ -1,60 +1,43 @@
 <template>
     <el-container style="height: 100%; border: 1px solid #eee">
-        <el-aside width="150px" style="background-color: rgb(238, 241, 246)">
-            <el-menu v-model="activeMenu" default-active="activeMenu"  @select="OnSelectMenu">
-                <el-menu-item index="file">
-                    <i class="el-icon-tickets"></i>
-                    <span slot="title">文件</span>
-                </el-menu-item>
-                <el-menu-item index="operate">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">操作</span>
-                </el-menu-item>
-            </el-menu>
-        </el-aside>
-        <el-container>
-            <el-main>
-                <ListPart v-show="activeName == 'list'"></ListPart>
-                <PackagePart v-show="activeName == 'app'"></PackagePart>
-            </el-main>
-            <el-footer style="height: 30px" v-html="logOutput">feawfaewfaewfaewfaewfaewfaewfaewfaewfaewf</el-footer>
+        <el-header style="min-width: 600px; margin: 20px 0px;">
+            <el-button type="primary" icon="el-icon-document" v-on:click="OnClickOpenFile()">打开文件</el-button>
+            <el-button type="primary" icon="el-icon-document" v-on:click="OnClickWorkPath()">工作目录</el-button>
+        </el-header>
+        <el-tabs v-model='activeName' style="margin: 0px 20px;" @tab-click="handleTabClick">
+            <el-tab-pane label="应用列表" name="list"></el-tab-pane>
+            <el-tab-pane label="应用信息" name="app" v-if="showApp" ></el-tab-pane>
+        </el-tabs>
+        <el-container style="height: 100%">
+            <ListPart v-show="activeName == 'list'"></ListPart>
+            <PackagePart v-show="activeName == 'app'"></PackagePart>
         </el-container>
     </el-container>
 </template>
 <script>
-    import ListPart from "./ListPart"
-    import PackagePart from "./PackagePart"
-    import { Util } from "../common/Util"
-    import { parseAndroid } from "../common/parseAndroid";
-    import { console, logger } from '../common/logger';
+    import ListPart from "./ListPage"
+    import PackagePart from "./PackagePage"
+    import { Util } from "../../common/Util"
+    import { parseAndroid } from "../../common/parseAndroid";
+    import { console, logger } from '../../common/logger';
     import { Loading } from 'element-ui';
     import { shell } from 'electron';
     export default {
-        name:"main-page",
         components : { ListPart, PackagePart },
         mounted() {
             Util.event.on("showApp", () => {
                 this.showApp = true
                 this.activeName = "app";
             })
-            logger.event.on("log", (level, str) => {
-                this.logOutput = str
-            })
         },
         data() {
             return {
-                activeMenu : "file",
                 logTag : "",
                 activeName : "list",
                 showApp : false,
-                logOutput : "",
             }
         },
         methods: {
-            OnSelectMenu: function(index) {
-                console.log("================= " + index)
-                console.log("================= " + this.activeMenu)
-            },
             handleTabClick: function() {
 
             },

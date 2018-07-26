@@ -1,6 +1,6 @@
 <template>
     <el-container style="height: 100%">
-        <el-aside width="220px" style="background-color: rgb(238, 241, 246)">
+        <el-aside width="220px">
             <el-tree :data="treeData" :props="defaultProps" empty-text="正在加载文件列表..." @node-click="OnClickTree"></el-tree>
         </el-aside>
         <el-container style="height: 100%">
@@ -21,7 +21,6 @@
                     <br/>
                     <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
                 </div>
-
             </el-header>
             <el-main>
                 <img style="background-color: white" v-bind:src="imageUrl"/>
@@ -32,7 +31,7 @@
 </template>
 
 <script>
-    import { Util } from "../common/Util"
+    import { Util } from "../../common/Util"
     import fs from 'fs';
     import { shell } from 'electron';
     export default {
@@ -112,5 +111,8 @@
     }
 </script>
 <style>
-
+.el-tree>.el-tree-node{
+    min-width:100%;
+    display: inline-block !important;
+}
 </style>

@@ -102,7 +102,7 @@ var parseAndroid = (function () {
     parseAndroid.prototype.dex2jar = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "./d2j-dex2jar.sh";
-            var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"], true);
+            var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"]);
             console.log("开始反编译jar");
             sp.on("close", () => {
                 console.log("反编译jar完成")
@@ -113,7 +113,7 @@ var parseAndroid = (function () {
     parseAndroid.prototype.decompress = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "apktool.bat" : "./apktool.sh";
-            var sp = Util.execCommand(bat, "apktool", ["d", "-f", this.targetFile, "-o", this.targetPath + "/source/"], true);
+            var sp = Util.execCommand(bat, "apktool", ["d", "-f", this.targetFile, "-o", this.targetPath + "/source/"]);
             console.log("开始解压文件 : " + this.fileName);
             sp.on('close', () => {
                 console.log("解压文件完成");

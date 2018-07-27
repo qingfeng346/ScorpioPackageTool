@@ -69,10 +69,14 @@
                 var parse = new parseAndroid();
                 var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "正在解析"});
                 try {
+                    loading.text = "正在拷贝文件..."
                     await parse.init(file);
+                    loading.text = "正在反编译AndroidManifest.xml..."
                     var info = await parse.parseInfo();
                     Util.insertFileInfo(info)
+                    loading.text = "正在解压数据..."
                     await parse.decompress();
+                    loading.text = "正在反编译dex..."
                     await parse.dex2jar();
                     Util.event.emit("showApp")
                     Util.event.emit("updateInfo", info)

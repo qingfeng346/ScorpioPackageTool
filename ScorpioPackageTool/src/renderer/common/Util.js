@@ -153,8 +153,8 @@ var Util = (function() {
         }
         Util.saveFileInfos();
         this.event.emit("updateInfos")
-        fs.unlinkSync(this.apkPath + "/" + info.name + ".apk")
-        this.rmdirRecursive(this.apkPath + "/" + info.name)
+        await this.removeFile(path.resolve(this.apkPath, info.name + ".apk"))
+        await this.rmdirRecursive(this.apkPath + "/" + info.name)
     }
     Util.getAppIcon = function(info) {
         return "file://" + this.apkPath + "/" + info.name + "/source/" + info.icon;
@@ -172,20 +172,42 @@ var Util = (function() {
     Util.mkdir = function(dir) {
         if (!fs.existsSync(dir)) { fs.mkdirSync(dir); }
     }
-    Util.rmdirRecursive = function(dir) {
+    Util.rmdirRecursive = async function(dir) {
         if (fs.existsSync(dir)) {
             var files = fs.readdirSync(dir)
             for (var file of files) {
-                var curPath = dir + "/" + file;
+                var curPath = path.resolve(dir, file)
                 if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                    this.rmdirRecursive(curPath);
+                    await this.rmdirRecursive(curPath)
                 } else {
-                    fs.unlinkSync(curPath);
+                    await this.removeFile(curPath)
                 }
             }
-            fs.rmdirSync(dir);
+            await this.rmdir(dir)
         }
-    };
+    }
+    Util.removeFile = function(file) {
+        return new Promise((resolve, reject) => {
+            fs.unlink(file, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+    Util.rmdir = function(dir) {
+        return new Promise((resolve, reject) => {
+            fs.rmdir(dir, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
     Util.readFile = function(file) {
         return new Promise((resolve, reject) => {
             fs.readFile(file, "utf8", (err, data) => {
@@ -202,7 +224,7 @@ var Util = (function() {
     }
     Util.executeExe = function(command, cwd, callback) {
         var bat = command.substring(0, command.indexOf(" "))
-        this.executeSync(`chmod +x ${bat}`, cwd); 
+        if (!this.IsWindows()) { this.executeSync(`chmod +x ${bat}`, cwd); }
         this.execute(command, cwd, callback)
     }
     Util.execute = function(command, cwd, callback, binary) {
@@ -213,10 +235,10 @@ var Util = (function() {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
         return execSync(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined});
     }
-    Util.execCommand = function(command, cwd, args, sh) {
+    Util.execCommand = function(command, cwd, args) {
         var strArgs = ""
         for (var arg of args) { strArgs += " " + arg; }
-        this.executeSync(`chmod +x ${command}`, cwd); 
+        if (!this.IsWindows()) { this.executeSync(`chmod +x ${command}`, cwd); }
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command + strArgs);
         var sp = spawn(command, args, { cwd: path.resolve(this.toolsPath, cwd) });
         sp.stdout.on('data', (data) => {

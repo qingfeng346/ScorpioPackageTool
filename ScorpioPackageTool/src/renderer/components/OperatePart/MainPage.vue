@@ -20,9 +20,11 @@
 <script>
 import { console } from '../../common/logger';
 import { Util } from '../../common/Util';
+import { Loading } from 'element-ui';
 export default {
     mounted() {
         this.OnClickRefreshDevices()
+        Util.event.on("dropFiles", this.OnDropFiles)
     },
     data() {
         return {
@@ -32,6 +34,21 @@ export default {
         }
     },
     methods: {
+        OnDropFiles : async function(files) {
+            if (Util.activeMenu != "operate") { return; }
+            if (this.device == "") { return; }
+            var names = []
+            for (var file of files) {
+                if (file.name.endWith(".apk")) {
+                    var loading = Loading.service({text: "正在安装文件 : " + file.name})
+                    var result = await Util.adbAndroid(this.device, "install -r " + file.path)
+                    console.log("result = " + result)
+                    loading.close()
+                } else if (file.names.endWith(".obb")) {
+                    
+                }
+            }
+        },
         formatDeivce : function(device) {
             var v = Util.getAndroidVersion(device.androidVersion)
             return `${device.model}(${v})`

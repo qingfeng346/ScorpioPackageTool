@@ -51,6 +51,7 @@
                 shell.showItemInFolder(Util.apkPath);
             },
             OnDropFiles : function(files) {
+                if (Util.activeMenu != "file") { return }
                 var names = []
                 for (var file of files) {
                     if (file.name.endWith(".apk")) {

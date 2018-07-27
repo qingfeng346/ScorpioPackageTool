@@ -362,6 +362,10 @@ var Util = (function() {
         var bat = Util.IsWindows() ? "adb.exe" : "./adb";
         return await this.executeAsync(`${bat} -s ${id} shell "${command}"`, "adb")
     }
+    Util.adbAndroid = async function(id, command) {
+        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        return await this.executeAsync(`${bat} -s ${id} ${command}`, "adb")
+    }
     Util.getAndroidProp = async function(id, key) {
         var bat = Util.IsWindows() ? "adb.exe" : "./adb";
         var str = await this.shellAndroid(id, `getprop | grep ${key}`)

@@ -223,17 +223,47 @@ var Util = (function() {
         this.execute("java -jar " + command, cwd, callback)
     }
     Util.executeExe = function(command, cwd, callback) {
-        var bat = command.substring(0, command.indexOf(" "))
-        if (!this.IsWindows()) { this.executeSync(`chmod +x ${bat}`, cwd); }
+        if (!this.IsWindows()) { 
+            var bat = command.substring(0, command.indexOf(" "))
+            this.executeSync(`chmod +x ${bat}`, cwd); 
+        }
         this.execute(command, cwd, callback)
     }
-    Util.execute = function(command, cwd, callback, binary) {
+    Util.execute = function(command, cwd, callback) {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
         return exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, callback);
     }
     Util.executeSync = function(command, cwd) {
         console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
         return execSync(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined});
+    }
+    Util.executeAsync = function(command, cwd) {
+        return new Promise((resolve, reject) => {
+            console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
+            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, (err, stdout, stderr) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(stdout)
+                }
+            });
+        });
+    }
+    Util.executeExeAsync = function(command, cwd) {
+        return new Promise((resolve, reject) => {
+            console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
+            if (!this.IsWindows()) { 
+                var bat = command.substring(0, command.indexOf(" "))
+                this.executeSync(`chmod +x ${bat}`, cwd); 
+            }
+            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, (err, stdout, stderr) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(stdout)
+                }
+            });
+        });
     }
     Util.execCommand = function(command, cwd, args) {
         var strArgs = ""
@@ -327,6 +357,35 @@ var Util = (function() {
             // console.log("getJavaInfo is error : " + this.getString(e.stderr))
         }
         return undefined
+    }
+    Util.shellAndroid = async function(id, command) {
+        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        return await this.executeAsync(`${bat} -s ${id} shell "${command}"`, "adb")
+    }
+    Util.getAndroidProp = async function(id, key) {
+        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        var str = await this.shellAndroid(id, `getprop | grep ${key}`)
+        // console.log(str)
+        var start = str.lastIndexOf("[")
+        var end = str.lastIndexOf("]")
+        return str.substring(start + 1, end)
+    }
+    Util.getAndroidDevices = async function() {
+        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        var strDevices = await this.executeExeAsync(`${bat} devices`, "adb")
+        var lines = strDevices.split("\n")
+        var devices = []
+        for (var i = 1; i < lines.length; ++i) {
+            var line = lines[i].trim()
+            if (line == "") { continue; }
+            var id = line.substring(0, line.indexOf("device")).trim();
+            if (id == "") { continue; }
+            var model = await this.getAndroidProp(id, "ro.product.model")
+            var androidVersion = await this.getAndroidProp(id, "ro.build.version.sdk")
+            devices.push({id : id, model: model, androidVersion: androidVersion})
+        }
+        // console.log(JSON.stringify(devices))
+        return devices;
     }
     return Util;
 }());

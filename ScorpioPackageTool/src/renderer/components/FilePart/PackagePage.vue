@@ -4,7 +4,7 @@
             <el-tree :data="treeData" :props="defaultProps" empty-text="正在加载文件列表..." @node-click="OnClickTree"></el-tree>
         </el-aside>
         <el-container style="height: 100%">
-            <el-header style="font-size: 14px;">
+            <el-header style="font-size: 14px; min-width: 500px; height: 120px">
                 <el-button-group>
                     <el-button type="primary" v-on:click="OnClickOpenSource()">打开源码</el-button>
                     <el-button type="primary" v-on:click="OnClickOpenFolder()">打开目录</el-button>
@@ -22,9 +22,9 @@
                     <span>最小支持版本 : {{ getAndroidVersion(fileInfo.sdkVersion) }}</span>
                 </div>
             </el-header>
-            <el-main>
-                <img style="background-color: white" v-bind:src="imageUrl"/>
-                <pre><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
+            <el-main style="height: 100%">
+                <img style="background-color: white" v-bind:src="imageUrl" v-show="isShowImage()"/>
+                <pre style="margin: 0px;padding: 0px;"><code style="color: black; font-size: 14px;">{{ mainEditor }}</code></pre>
             </el-main>
         </el-container>
     </el-container>
@@ -59,6 +59,9 @@
         methods: {
             getAndroidVersion : function(version) {
                 return Util.getAndroidVersion(version)
+            },
+            isShowImage : function() {
+                return this.imageUrl != "";
             },
             refreshTreeList : async function() {
                 var path = Util.apkPath + "/" + this.fileInfo.name + "/source";
@@ -114,5 +117,9 @@
 .el-tree>.el-tree-node{
     min-width:100%;
     display: inline-block !important;
+}
+.pre {
+    margin: 0px;
+    padding: 0px;
 }
 </style>

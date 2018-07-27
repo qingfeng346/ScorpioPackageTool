@@ -14,21 +14,24 @@
         </el-aside>
         <el-container>
             <FilePage v-show="activeMenu == 'file'"></FilePage>
+            <OperatePart v-show="activeMenu == 'operate'"></OperatePart>
             <el-footer style="height: 30px" v-html="logOutput"></el-footer>
         </el-container>
     </el-container>
 </template>
 <script>
     import FilePage from './FilePart/MainPage';
+    import OperatePart from './OperatePart/MainPage';
     import { console, logger } from '../common/logger';
     import { Util } from '../common/Util';
     export default {
-        components : { FilePage },
+        components : { FilePage, OperatePart },
         mounted() {
             logger.event.on("log", (level, str) => {
                 this.logOutput = str
             })
             Util.activeMenu = this.activeMenu
+            console.log("启动完成")
         },
         data() {
             return {

@@ -1,38 +1,28 @@
 <template>
     <el-container style="height: 100%; border: 1px solid #eee; padding: 10px">
-        <el-aside width="280px">
-            <el-card>
+        <el-aside width="305px">
+            <el-card class="line">
                 <div slot="header" class="clearfix">
                     <span>设备列表</span>
                 </div>
-                <div class="line">
-                    <el-select v-model="device" value-key="id" size="small" style="width: 200px" placeholder="无设备" @change="OnChangeDevice">
-                        <el-option
-                        v-for="device in deviceList"
-                        :key="device.id"
-                        :label="formatDeivce(device)"
-                        :value="device.id">
-                        </el-option>
+                <div>
+                    <el-select v-model="deviceSel" value-key="id" size="small" style="width: 200px" placeholder="无设备" @change="OnChangeDevice">
+                        <el-option v-for="device in deviceList" :key="device.id" :label="formatDeivce(device)" :value="device.id"></el-option>
                     </el-select>
                     <el-button circle icon="el-icon-refresh" size="small" @click="OnClickRefreshDevices"></el-button>
-                </div>
-                <div>
-                    <el-input placeholder="请输入内容" size="small" ></el-input>
                 </div>
             </el-card>
-            <!-- <el-collapse v-model="activeNames" style="padding: 0px; margin: 0px">
-                <el-collapse-item title="设备列表" name="device">
-                    <el-select v-model="device" value-key="id" size="small" style="width: 200px" placeholder="无设备" @change="OnChangeDevice">
-                        <el-option
-                            v-for="device in deviceList"
-                            :key="device.id"
-                            :label="formatDeivce(device)"
-                            :value="device.id">
-                        </el-option>
+            <el-card class="line">
+                <div slot="header" class="clearfix">
+                    <span>其他端口设备</span>
+                </div>
+                <el-input size="small" v-model="otherDevice" placeholder="请输入IP端口">
+                    <el-select slot="prepend" v-model="history" @change="OnChangeHistory">
+                        <el-option v-for="item in historyList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
-                    <el-button circle icon="el-icon-refresh" size="small" @click="OnClickRefreshDevices"></el-button>
-                </el-collapse-item>
-            </el-collapse> -->
+                    <el-button slot="append" size="small" @click="OnClickConnectDevice">连接</el-button>
+                </el-input>
+            </el-card>
         </el-aside>
     </el-container>
 </template>
@@ -49,32 +39,38 @@ export default {
     },
     data() {
         return {
-            activeNames: ['device'],
-            deviceList: [],
-            device : "",
+            deviceList: [],     //设备列表
+            deviceSel : "",     //当前选择设备
+            otherDevice: "",    //其他端口设备
+            history : "",
+            historyList: [{
+                label : "MuMu模拟器",
+                value : "127.0.0.1:7555",
+            },{
+                label : "夜神模拟器",
+                value : "127.0.0.1:62001",
+            }
+            ]
         }
     },
     methods: {
         OnDropFiles : async function(files) {
             if (Util.activeMenu != "operate") { return; }
-            if (this.device == "") { return; }
+            if (this.deviceSel == "") { return; }
             for (var file of files) {
                 if (file.name.endWith(".apk")) {
                     var loading = Loading.service({text: "正在安装文件 : " + file.name})
                     var path = Util.parseArg(file.path)
-                    Util.adbAndroid(this.device, `install -r ${path}`).then((result) => {
-                        loading.close()
+                    try {
+                        await Util.adbAndroid(this.deviceSel, `install -r ${path}`)
                         console.log("安装成功")
-                        Notification.success({
-                            message: "安装成功"
-                        });
-                    }).catch((stderr) => {
+                        Notification.success({ message: "安装成功" });
+                    } catch (err) {
+                        console.error("安装失败 : " + err)
+                        Notification.error({ message: "安装失败 : " + err });
+                    } finally {
                         loading.close()
-                        console.error("安装失败 : " + stderr)
-                        Notification.error({
-                            message: "安装失败 : " + stderr
-                        });
-                    })
+                    }
                 }
             }
             for (var file of files) {
@@ -84,14 +80,20 @@ export default {
                     bundleId = bundleId.substring(0, bundleId.lastIndexOf("."))
                     var fullPath = file.path
                     try {
-                        await Util.shellAndroid(this.device, `mkdir /sdcard/Android/obb/${bundleId}`)
-                    } catch (e) {
-                    }
+                        await Util.shellAndroid(this.deviceSel, `mkdir /sdcard/Android/obb/${bundleId}`)
+                    } catch (e) { }
                     try {
-                        await Util.adbAndroid(this.device, `push ${fullPath} /sdcard/Android/obb/${bundleId}/`)
-                    } catch (e) {
+                        var p = Util.parseArg(fullPath)
+                        await Util.adbAndroid(this.deviceSel, `push ${p} /sdcard/Android/obb/${bundleId}/`)
+                        console.log("拷贝成功 : " + fullPath)
+                        Notification.success({ message: "拷贝成功" });
+                    } catch (err) {
+                        console.error("拷贝失败 : " + err)
+                        Notification.error({ message: "拷贝失败 : " + err});
+                    } finally {
+                        loading.close()
                     }
-                    loading.close()
+                    
                 }
             }
         },
@@ -100,18 +102,33 @@ export default {
             return `${device.model}(${v})`
         },
         OnClickRefreshDevices : async function() {
-            this.device = ""
+            this.deviceSel = ""
             var devices = await Util.getAndroidDevices();
             this.deviceList = devices
             if (this.deviceList.length > 0) {
-                this.device = this.deviceList[0].id
+                this.deviceSel = this.deviceList[0].id
                 this.OnChangeDevice()
             }
         },
-        OnChangeDevice: function() {
-            console.log("value : " + this.device)
+        OnClickConnectDevice : async function() {
+            if (this.otherDevice == "") { return; }
+            Util.executeAsync("adb connect " + this.otherDevice, "adb").then(() => {
+                this.OnClickRefreshDevices()
+            }).catch((err) => {
+                Notification.error({message : err})
+            });
         },
-
+        OnChangeHistory: async function() {
+            this.otherDevice = this.history
+        },
+        OnChangeDevice: async function() {
+            // var result = await Util.shellAndroid(this.deviceSel, "pm list packages -e 'com.funplus.townkins.global'") 
+            // console.log(result)
+            // var result = await Util.shellAndroid(this.deviceSel, "dumpsys -p package 'com.funplus.townkins.global'") 
+            // var result = await Util.shellAndroid(this.deviceSel, "dumpsys activity -p 'com.funplus.townkins.global'") 
+            // var result = await Util.shellAndroid(this.deviceSel, "pm list packages -f -3"  ) 
+            // console.log(result)
+        },
     }
 }
 </script>

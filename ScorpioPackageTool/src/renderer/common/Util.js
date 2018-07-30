@@ -240,9 +240,9 @@ var Util = (function() {
     Util.executeAsync = function(command, cwd) {
         return new Promise((resolve, reject) => {
             console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
-            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, (err, stdout, stderr) => {
+            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, maxBuffer : 1024 * 1024}, (err, stdout, stderr) => {
                 if (err) {
-                    reject(err)
+                    reject(stderr)
                 } else {
                     resolve(stdout)
                 }

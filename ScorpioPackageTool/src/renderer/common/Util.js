@@ -251,11 +251,11 @@ var Util = (function() {
     }
     Util.executeExeAsync = function(command, cwd) {
         return new Promise((resolve, reject) => {
-            console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
             if (!this.IsWindows()) { 
                 var bat = command.substring(0, command.indexOf(" "))
                 this.executeSync(`chmod +x ${bat}`, cwd); 
             }
+            console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
             exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined}, (err, stdout, stderr) => {
                 if (err) {
                     reject(err)

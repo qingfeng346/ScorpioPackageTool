@@ -79,11 +79,13 @@ var Util = (function() {
         } else {
             this.toolsPath = path.resolve(appInfo.path.appPath, "../tools")
         }
+        this.buildInfo = this.getBuildInfo()
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
-        this.activeMenu = ""
+        console.log("buildInfo : " + JSON.stringify(this.buildInfo))
         this.mkdir(this.dataPath)
         this.mkdir(this.apkPath)
+        this.activeMenu = ""
         this.event = new events()
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
         ipcRenderer.on("showMessageBoxResult", this.showMessageBoxResult)
@@ -321,6 +323,16 @@ var Util = (function() {
     Util.getAppInfo = function() {
         return ipcRenderer.sendSync('getAppInfo')
     }
+    Util.getBuildInfo = function() {
+        var file = path.resolve(this.toolsPath, "../info.json")
+        if (fs.existsSync(file)) {
+            return JSON.parse(fs.readFileSync(file))
+        } else {
+            return {
+                "date" : new Date().getTime()
+            }
+        }
+    }
     Util.showOpenDialog = function(options, args, callback) {
         ShowOpenDialogCallback = callback
         ipcRenderer.send('showOpenDialog', options, args)
@@ -379,12 +391,12 @@ var Util = (function() {
         return await this.executeAsync(`${bat} -s ${id} ${command}`, "adb")
     }
     Util.getAndroidProp = async function(id, key) {
-        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
-        var str = await this.shellAndroid(id, `getprop | grep ${key}`)
-        // console.log(str)
-        var start = str.lastIndexOf("[")
-        var end = str.lastIndexOf("]")
-        return str.substring(start + 1, end)
+        var str = await this.shellAndroid(id, `getprop ${key}`)
+        // // console.log(str)
+        // var start = str.lastIndexOf("[")
+        // var end = str.lastIndexOf("]")
+        // return str.substring(start + 1, end)
+        return str
     }
     Util.getAndroidDevices = async function() {
         var bat = Util.IsWindows() ? "adb.exe" : "./adb";
@@ -398,7 +410,7 @@ var Util = (function() {
             if (id == "") { continue; }
             var model = await this.getAndroidProp(id, "ro.product.model")
             var androidVersion = await this.getAndroidProp(id, "ro.build.version.sdk")
-            devices.push({id : id, model: model, androidVersion: androidVersion})
+            devices.push({id : id, model: model, androidVersion: androidVersion.trim()})
         }
         // console.log(JSON.stringify(devices))
         return devices;

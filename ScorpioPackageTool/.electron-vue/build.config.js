@@ -12,7 +12,7 @@ module.exports = {
   ignore: /(^\/(src|test|tools|\.[a-z]+|README|yarn|static|dist\/web))|\.gitkeep/,
   out: path.join(__dirname, '../../build'),
   overwrite: true,
-  appVersion: "1.0.0",                          //版本号
+  // appVersion: "1.0.0",                          //版本号
   executableName: "ScorpioPackageTool",         //可执行文件名称
   /* platform: process.env.BUILD_TARGET || 'all', */
   platform: process.platform === 'darwin' ? "darwin" : "win32",

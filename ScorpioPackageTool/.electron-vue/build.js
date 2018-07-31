@@ -5,6 +5,7 @@ process.env.NODE_ENV = 'production'
 const { say } = require('cfonts')
 const copydir = require('copy-dir')
 const path = require('path')
+const fs = require('fs')
 const chalk = require('chalk')
 const del = require('del')
 const packager = require('electron-packager')
@@ -49,7 +50,7 @@ function build () {
     console.log(`\n\n${results}`)
     console.log(`${okayLog}take it away ${chalk.yellow('`electron-packager`')}\n`)
     bundleApp().then(result => {
-      copyTool(result)
+      buildAppSuccess(result)
     }).catch(err => {
       process.exit(1)
     })
@@ -102,34 +103,6 @@ function pack (config) {
     })
   })
 }
-
-function bundleApp () {
-  return new Promise((resolve, reject) => {
-    packager(buildConfig, (err, appPaths) => {
-      if (err) {
-        console.log(`\n${errorLog}${chalk.yellow('`electron-packager`')} says...\n`)
-        console.log(err + '\n')
-        reject(err)
-      } else {
-        console.log(`\n${doneLog}\n`)
-        resolve(appPaths)
-      }
-    })
-  })
-}
-function copyTool(appPaths) {
-  for (var appPath of appPaths) {
-    var dir = ""
-    if (buildConfig.platform == "win32") {
-      dir = path.resolve(appPath, "resources/tools")
-    } else {
-      dir = path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources/tools")
-    }
-    console.log("复制所有工具 : " + dir)
-    copydir.sync(path.resolve(process.cwd(), "tools"), dir)
-  }
-}
-
 function web () {
   del.sync(['dist/web/*', '!.gitkeep'])
   webpack(webConfig, (err, stats) => {
@@ -161,3 +134,52 @@ function greeting () {
   } else console.log(chalk.yellow.bold('\n  lets-build'))
   console.log()
 }
+
+function bundleApp () {
+  return new Promise((resolve, reject) => {
+    packager(buildConfig, (err, appPaths) => {
+      if (err) {
+        console.log(`\n${errorLog}${chalk.yellow('`electron-packager`')} says...\n`)
+        console.log(err + '\n')
+        reject(err)
+      } else {
+        console.log(`\n${doneLog}\n`)
+        resolve(appPaths)
+      }
+    })
+  })
+}
+function getResourcePath(appPath) {
+  if (buildConfig.platform == "win32") {
+    return path.resolve(appPath, "resources/")
+  } else {
+    return path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources/")
+  }
+}
+function buildAppSuccess(appPaths) {
+  copyTool(appPaths)
+  createInfos(appPaths)
+}
+function copyTool(appPaths) {
+  for (var appPath of appPaths) {
+    var dir = getResourcePath(appPath)
+    console.log("复制所有工具 : " + dir)
+    copydir.sync(path.resolve(process.cwd(), "tools"), path.resolve(dir, "tools"))
+  }
+}
+function createInfos(appPaths) {
+  var info = {
+    "date" : new Date().getTime()
+  }
+  var strInfo = JSON.stringify(info)
+  console.log("写入信息 : " + strInfo)
+  for (var appPath of appPaths) {
+    var dir = getResourcePath(appPath)
+    try {
+      fs.writeFileSync(path.resolve(dir, "info.json"), strInfo)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+}
+

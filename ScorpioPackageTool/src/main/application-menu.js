@@ -79,7 +79,7 @@ Electron: ${ele}
         }
         dialog.showMessageBox(options, function (index) {
           if (index === 1) {
-            shell.openExternal(`mailto:bug@fengyuezhu.com?subject=ScorpioAndroidTool反馈&body=${options.detail}`)
+            shell.openExternal("https://github.com/qingfeng346/ScorpioPackageTool/issues/new")
           }
         })
       }

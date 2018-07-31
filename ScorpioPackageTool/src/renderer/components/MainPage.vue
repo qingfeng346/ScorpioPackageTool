@@ -6,10 +6,10 @@
                     <i class="el-icon-tickets"></i>
                     <span slot="title">文件</span>
                 </el-menu-item>
-                <el-menu-item index="operate">
+                <!-- <el-menu-item index="operate">
                     <i class="el-icon-menu"></i>
                     <span slot="title">操作</span>
-                </el-menu-item>
+                </el-menu-item> -->
             </el-menu>
         </el-aside>
         <el-container>

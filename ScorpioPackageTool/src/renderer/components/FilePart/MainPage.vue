@@ -30,15 +30,6 @@
                 this.showApp = true
                 this.activeName = "app";
             })
-            // Util.event.on("dropFiles", (files) => {
-            //     console.log(Util.activeMenu)
-            //     if (Util.activeMenu == "file") {
-            //         for (var file of files) {
-            //             console.log(file.name)
-            //         }
-            //     }
-            // })
-            Util.event.removeAllListeners("dropFiles")
             Util.event.on("dropFiles", this.OnDropFiles)
         },
         data() {
@@ -93,7 +84,9 @@
                 Util.showOpenDialog({
                     filters: [ {name: 'apk & ipa', extensions: ['apk', 'ipa'] }],
                     properties: ['openFile', 'multiSelections']
-                }, null, (files, args) => { this.parseAndroidFile(files[0]) });
+                }, null, (files, args) => {
+                    this.parseAndroidFiles(files)
+                });
             },
             OnClickOpenLog : function() {
                 var bat = Util.IsWindows() ? "adb.exe" : "./adb";

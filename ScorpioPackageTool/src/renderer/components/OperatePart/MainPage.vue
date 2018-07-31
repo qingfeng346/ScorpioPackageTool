@@ -38,7 +38,6 @@ export default {
     },
     mounted() {
         this.OnClickRefreshDevices()
-        Util.event.removeAllListeners("dropFiles")
         Util.event.on("dropFiles", this.OnDropFiles)
     },
     data() {

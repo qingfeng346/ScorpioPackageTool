@@ -52,6 +52,7 @@ String.prototype.endWith = function(str) {
 }
 
 let ShowOpenDialogCallback = undefined
+let ShowMessageBoxCallback = undefined
 var Util = (function() {
     function Util() {
     }
@@ -85,9 +86,10 @@ var Util = (function() {
         this.mkdir(this.apkPath)
         this.event = new events()
         ipcRenderer.on('showOpenDialogResult', this.showOpenDialogResult)
+        ipcRenderer.on("showMessageBoxResult", this.showMessageBoxResult)
         this.loadFileInfos()
-        this.checkJavaEnviroment()
         this.initDragFiles()
+        this.checkJavaEnviroment()
     }
     Util.initDragFiles = function() {
         document.ondragstart = function(e) {
@@ -328,6 +330,15 @@ var Util = (function() {
         ShowOpenDialogCallback = undefined
         if (callback) callback(files, args)
     }
+    Util.showMessageBox = function(options, callback) {
+        ShowMessageBoxCallback = callback
+        ipcRenderer.send("showMessageBox", options)
+    }
+    Util.showMessageBoxResult = function(event, index) {
+        var callback = ShowMessageBoxCallback
+        ShowMessageBoxCallback = undefined
+        if (callback) callback(index)
+    }
     Util.checkJavaEnviroment = function() {
         var javaInfo = this.getJavaInfo()
         if (javaInfo) {
@@ -337,15 +348,16 @@ var Util = (function() {
                 position: 'bottom-left'
             })
         } else {
-            MessageBox.confirm("检测不到系统Java环境,点击去下载.", "错误", {
-                confirmButtonText: '去下载',
-                cancelButtonText: '取消',
-                type: 'error'
-            }).then(() => {
-                open("http://www.oracle.com/technetwork/java/javase/downloads/index.html")
-            }).catch(() => {
-                //console.log("点击取消")
-            });
+            this.showMessageBox({
+                type : "error",
+                title : "警告",
+                message : "检测不到系统Java环境,是否立刻下载?",
+                buttons : ["No", "Yes"],
+            }, (index) => {
+                if (index == 1) {
+                    open("http://www.oracle.com/technetwork/java/javase/downloads/index.html")
+                }
+            })
         }
     }
     Util.getJavaInfo = function() {

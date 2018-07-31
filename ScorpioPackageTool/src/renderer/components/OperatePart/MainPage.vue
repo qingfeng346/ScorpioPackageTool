@@ -33,8 +33,12 @@ import { Util } from '../../common/Util';
 import { Loading } from 'element-ui';
 import { Notification } from 'element-ui';
 export default {
+    created() {
+        
+    },
     mounted() {
         this.OnClickRefreshDevices()
+        Util.event.removeAllListeners("dropFiles")
         Util.event.on("dropFiles", this.OnDropFiles)
     },
     data() {

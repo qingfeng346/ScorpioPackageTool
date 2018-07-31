@@ -20,18 +20,17 @@
     </el-container>
 </template>
 <script>
+    import { Util } from '../common/Util';
+    import { console, logger } from '../common/logger';
     import FilePage from './FilePart/MainPage';
     import OperatePart from './OperatePart/MainPage';
-    import { console, logger } from '../common/logger';
-    import { Util } from '../common/Util';
     export default {
         components : { FilePage, OperatePart },
+        created() {
+            logger.event.on("log", (level, str) => { this.logOutput = str })
+        },
         mounted() {
-            logger.event.on("log", (level, str) => {
-                this.logOutput = str
-            })
             Util.activeMenu = this.activeMenu
-            console.log("启动完成")
         },
         data() {
             return {

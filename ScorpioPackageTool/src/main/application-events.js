@@ -15,6 +15,11 @@ ipcMain.on("showOpenDialog", (event, options, args) => {
     if (files) event.sender.send("showOpenDialogResult", files, args);
   });
 });
+ipcMain.on("showMessageBox", (event, options) => {
+  dialog.showMessageBox(options, (index) => {
+    event.sender.send("showMessageBoxResult", index)
+  })
+})
 ipcMain.on('getAppInfo', function (event) {
   event.returnValue = {
     path: {

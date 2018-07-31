@@ -25,6 +25,7 @@
     export default {
         components : { ListPart, PackagePart },
         mounted() {
+            Util.event.removeAllListeners("showApp")
             Util.event.on("showApp", () => {
                 this.showApp = true
                 this.activeName = "app";
@@ -37,6 +38,7 @@
             //         }
             //     }
             // })
+            Util.event.removeAllListeners("dropFiles")
             Util.event.on("dropFiles", this.OnDropFiles)
         },
         data() {

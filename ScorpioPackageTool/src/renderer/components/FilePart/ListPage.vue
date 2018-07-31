@@ -18,10 +18,10 @@
 <script>
     import { Util } from "../../common/Util"
     import { console } from '../../common/logger';
-import { Loading } from 'element-ui';
-
+    import { Loading } from 'element-ui';
     export default {
         mounted() {
+            Util.event.removeAllListeners("updateInfos")
             Util.event.on("updateInfos", () => {
                 this.fileList = Util.getFileInfos()
             })

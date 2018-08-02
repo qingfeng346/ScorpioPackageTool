@@ -152,8 +152,10 @@ function bundleApp () {
 function getResourcePath(appPath) {
   if (buildConfig.platform == "win32") {
     return path.resolve(appPath, "resources/")
-  } else {
+  } else if (buildConfig.platform == "darwin") {
     return path.resolve(appPath, "ScorpioPackageTool.app/Contents/Resources/")
+  } else {
+    return path.resolve(appPath, "resources/")
   }
 }
 function buildAppSuccess(appPaths) {

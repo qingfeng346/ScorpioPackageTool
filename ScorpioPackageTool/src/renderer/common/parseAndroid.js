@@ -28,7 +28,7 @@ var parseAndroid = (function () {
     }
     parseAndroid.prototype.parseInfo = function() {
         return new Promise((resolve, reject) => {
-            var bat = Util.IsWindows() ? "aapt.exe" : "./aapt";
+            var bat = Util.getAapt()
             console.log("开始解析文件 " + this.fileName + " -> AndroidManifest.xml");
             var _this = this;
             var targetFile = Util.parseArg(this.targetFile);

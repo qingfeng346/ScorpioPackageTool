@@ -244,7 +244,7 @@ var Util = (function() {
     Util.executeAsync = function(command, cwd) {
         return new Promise((resolve, reject) => {
             console.log("执行命令行 目录 [" + cwd + "] 命令 : " + command);
-            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, maxBuffer : 1024 * 1024}, (err, stdout, stderr) => {
+            exec(command, { cwd: cwd ? path.resolve(this.toolsPath, cwd) : undefined, maxBuffer : 1024 * 1024 * 8}, (err, stdout, stderr) => {
                 if (err) {
                     reject(stderr)
                 } else {
@@ -383,11 +383,11 @@ var Util = (function() {
         return undefined
     }
     Util.shellAndroid = async function(id, command) {
-        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        var bat = Util.getAdb()
         return await this.executeAsync(`${bat} -s ${id} shell "${command}"`, "adb")
     }
     Util.adbAndroid = async function(id, command) {
-        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        var bat = Util.getAdb()
         return await this.executeAsync(`${bat} -s ${id} ${command}`, "adb")
     }
     Util.getAndroidProp = async function(id, key) {
@@ -399,7 +399,7 @@ var Util = (function() {
         return str
     }
     Util.getAndroidDevices = async function() {
-        var bat = Util.IsWindows() ? "adb.exe" : "./adb";
+        var bat = Util.getAdb()
         var strDevices = await this.executeExeAsync(`${bat} devices`, "adb")
         var lines = strDevices.split("\n")
         var devices = []
@@ -414,6 +414,24 @@ var Util = (function() {
         }
         // console.log(JSON.stringify(devices))
         return devices;
+    }
+    Util.getAapt = function() {
+        if (this.IsLinux()) {
+            return "./aapt_linux"
+        } else if (this.IsWindows()) {
+            return "aapt.exe"
+        } else {
+            return "./aapt"
+        }
+    }
+    Util.getAdb = function() {
+        if (this.IsLinux()) {
+            return "./adb_linux"
+        } else if (this.IsWindows()) {
+            return "adb.exe"
+        } else {
+            return "./adb"
+        }
     }
     return Util;
 }());

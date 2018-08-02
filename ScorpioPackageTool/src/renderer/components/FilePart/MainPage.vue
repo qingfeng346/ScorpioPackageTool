@@ -87,12 +87,6 @@
                 }, null, (files, args) => {
                     this.parseAndroidFiles(files)
                 });
-            },
-            OnClickOpenLog : function() {
-                var bat = Util.IsWindows() ? "adb.exe" : "./adb";
-                if (!Util.IsWindows()) { Util.execute(`chmod +x ${bat}`, "adb"); }
-                var tag = this.logTag != "" ? ` -s ${this.logTag}` : ""
-                Util.execute(`start ${bat} logcat ${tag}`, "adb");
             }
         }
     }

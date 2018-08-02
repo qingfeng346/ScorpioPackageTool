@@ -14,6 +14,6 @@ module.exports = {
   overwrite: true,
   // appVersion: "1.0.0",                          //版本号
   executableName: "ScorpioPackageTool",         //可执行文件名称
-  /* platform: process.env.BUILD_TARGET || 'all', */
-  platform: process.platform === 'darwin' ? "darwin" : "win32",
+  platform: process.env.BUILD_TARGET || 'all',
+  // platform: process.platform === 'darwin' ? "darwin" : "win32",
 }

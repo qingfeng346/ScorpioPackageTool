@@ -31,7 +31,6 @@ ipcMain.on('getAppInfo', function (event) {
       'music': app.getPath('music'),
       'pictures': app.getPath('pictures'),
       'videos': app.getPath('videos'),
-      'logs': app.getPath('logs'),
       'temp': app.getPath('temp'),
       'exe': app.getPath('exe'),
       'cwd' : process.cwd()

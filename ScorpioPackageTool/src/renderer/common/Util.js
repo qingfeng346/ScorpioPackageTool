@@ -292,6 +292,8 @@ var Util = (function() {
         }
         if (this.IsWindows()) {
             arg = "\"" + arg + "\"";
+        } else if (this.IsLinux()) {
+            arg = "\"" + arg + "\"";
         } else {
             arg = arg.replace(/ /g, "\\ ");
         }

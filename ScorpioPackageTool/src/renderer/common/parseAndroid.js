@@ -113,7 +113,7 @@ var parseAndroid = (function () {
     parseAndroid.prototype.decompress = function() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "apktool.bat" : "./apktool.sh";
-            var sp = Util.execCommand(bat, "apktool", ["d", "-f", this.targetFile, "-o", this.targetPath + "/source/"]);
+            var sp = Util.execCommand(bat, "apktool", ["d", "-f", Util.parseArg(this.targetFile), "-o", Util.parseArg(this.targetPath + "/source/")]);
             console.log("开始解压文件 : " + this.fileName);
             sp.on('close', () => {
                 console.log("解压文件完成");

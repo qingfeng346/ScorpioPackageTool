@@ -116,7 +116,7 @@ export default {
         OnClickConnectDevice : async function() {
             if (this.otherDevice == "") { return; }
             var bat = Util.getAdb()
-            Util.executeExeAsync(`${bat} connect` + this.otherDevice, "adb").then(() => {
+            Util.executeExeAsync(`${bat} connect ` + this.otherDevice, "adb").then(() => {
                 this.OnClickRefreshDevices()
             }).catch((err) => {
                 Notification.error({message : err})

@@ -1,14 +1,18 @@
 <template>
     <el-container style="height: 100%; border: 1px solid #eee">
-        <el-aside width="150px">
+        <el-aside width="190px">
             <el-menu default-active="file"  @select="OnSelectMenu">
                 <el-menu-item index="file">
                     <i class="el-icon-tickets"></i>
-                    <span slot="title">文件</span>
+                    <span slot="title">文件解析</span>
                 </el-menu-item>
                 <el-menu-item index="operate">
                     <i class="el-icon-menu"></i>
-                    <span slot="title">操作</span>
+                    <span slot="title">安卓设备管理(测试)</span>
+                </el-menu-item>
+                <el-menu-item index="resign" disabled="">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">ipa重新签名(开发中)</span>
                 </el-menu-item>
             </el-menu>
         </el-aside>

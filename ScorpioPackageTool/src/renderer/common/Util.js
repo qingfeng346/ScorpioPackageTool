@@ -8,6 +8,7 @@ import { ipcRenderer } from "electron";
 import { spawn, exec, execSync } from "child_process";
 import { Message, Notification, MessageBox, Loading } from "element-ui";
 import { console } from "./logger";
+import { MainMenu } from './MainMenu';
 
 const AndroidList = {
     "1" : "Android 1.0",
@@ -37,6 +38,7 @@ const AndroidList = {
     "25" : "Android 7.1",
     "26" : "Android 8.0",
     "27" : "Android 8.1",
+    "28" : "Android 9.0",
 }
 String.prototype.startWith = function(str) {
     if(str == null || str == "" || this.length == 0 || str.length > this.length) {
@@ -79,6 +81,7 @@ var Util = (function() {
         } else {
             this.toolsPath = path.resolve(appInfo.path.appPath, "../tools")
         }
+        this.appInfo = appInfo
         this.buildInfo = this.getBuildInfo()
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
@@ -92,6 +95,11 @@ var Util = (function() {
         this.loadFileInfos()
         this.initDragFiles()
         this.checkJavaEnviroment()
+        this.checkAdbEnviroment()
+        MainMenu.Init()
+    }
+    Util.getVersion = function() {
+        return this.appInfo.version
     }
     Util.initDragFiles = function() {
         document.ondragstart = function(e) {
@@ -379,10 +387,21 @@ var Util = (function() {
             var version = this.executeSync("java -jar JavaInfo.jar java.version", "JavaInfo");
             var home = this.executeSync("java -jar JavaInfo.jar java.home", "JavaInfo");
             return {"version" : version, "home" : home}
-        } catch (e) {
-            // console.log("getJavaInfo is error : " + this.getString(e.stderr))
-        }
+        } catch (e) { }
         return undefined
+    }
+    Util.checkAdbEnviroment = function() {
+        var bat = Util.getAdb()
+        try {
+            var result = this.executeSync(`${bat} --version`, "")
+            console.log("检测到系统adb, 将使用系统adb : " + result)
+        } catch (e) {
+            Notification.warning({
+                message : "检测不到adb环境,将使用内部adb",
+                dangerouslyUseHTMLString: true,
+                position: 'bottom-right'
+            })
+        }
     }
     Util.shellAndroid = async function(id, command) {
         var bat = Util.getAdb()

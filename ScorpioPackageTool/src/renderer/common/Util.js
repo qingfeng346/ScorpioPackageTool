@@ -6,7 +6,7 @@ const events = require('events')
 const open = require('open')
 import { ipcRenderer } from "electron";
 import { spawn, exec, execSync } from "child_process";
-import { Message, Notification, MessageBox, Loading } from "element-ui";
+import { Notification } from "element-ui";
 import { console } from "./logger";
 import { MainMenu } from './MainMenu';
 
@@ -55,37 +55,31 @@ String.prototype.endWith = function(str) {
 
 let ShowOpenDialogCallback = undefined
 let ShowMessageBoxCallback = undefined
-var Util = (function() {
-    function Util() {
-    }
+class UtilClass {
     //是否是windows平台
-    Util.IsWindows = function() {
-        return (os.platform() == "win32");
-    }
+    IsWindows() { return (os.platform() == "win32"); }
     //是否是mac平台
-    Util.IsMac = function() {
-        return (os.platform() == "darwin");
-    }
+    IsMac() { return (os.platform() == "darwin"); }
     //是否是linux平台
-    Util.IsLinux = function() {
-        return (os.platform() == "linux");
-    }
-    Util.init = function() {
-        var appInfo = this.getAppInfo();
-        console.log("appInfo = " + JSON.stringify(appInfo, null, 2))
-        this.dataPath = path.resolve(appInfo.path.userData, "./datas")     //数据存放目录
+    IsLinux() { return (os.platform() == "linux"); }
+    //是否是开发环境
+    IsDev() { return process.env.NODE_ENV === 'development'; }
+    //获得版本号
+    getVersion() { return this.appInfo.version }
+
+    getFileInfos() { return this.fileInfos }
+    //初始化
+    Init() {
+        this.appInfo = this.getAppInfo()
+        this.dataPath = path.resolve(this.appInfo.path.userData, "./datas")     //数据存放目录
         this.apkPath = path.resolve(this.dataPath, "./apks")               //apk存放目录
         this.filesName = path.resolve(this.dataPath, "files.json")         //解析文件列表
-        if (process.env.NODE_ENV === 'development') {
-            this.toolsPath = path.resolve(appInfo.path.cwd, "./tools")         //工具目录
-        } else {
-            this.toolsPath = path.resolve(appInfo.path.appPath, "../tools")
-        }
-        this.appInfo = appInfo
+        this.toolsPath = this.IsDev() ? path.resolve(this.appInfo.path.cwd, "./tools") : path.resolve(this.appInfo.path.appPath, "../tools")      //所有的工具目录
         this.buildInfo = this.getBuildInfo()
+        console.log("appInfo : " + JSON.stringify(this.appInfo, null, 2))
+        console.log("buildInfo : " + JSON.stringify(this.buildInfo, null, 2))
         console.log("toolsPath : " + this.toolsPath)
         console.log("dataPath : " + this.dataPath)
-        console.log("buildInfo : " + JSON.stringify(this.buildInfo))
         this.mkdir(this.dataPath)
         this.mkdir(this.apkPath)
         this.activeMenu = ""
@@ -98,10 +92,8 @@ var Util = (function() {
         this.checkAdbEnviroment()
         MainMenu.Init()
     }
-    Util.getVersion = function() {
-        return this.appInfo.version
-    }
-    Util.initDragFiles = function() {
+    initDragFiles() {
+        _this = this;
         document.ondragstart = function(e) {
             e.preventDefault();
             // console.log("ondragstart")
@@ -127,110 +119,56 @@ var Util = (function() {
             e.preventDefault();
             var files = e.dataTransfer.files;
             if (files.length == 0) { return; }
-            Util.event.emit("dropFiles", files)
+            _this.event.emit("dropFiles", files)
         }
     }
-    Util.getFileInfos = function() {
-        return this.fileInfos
-    }
-    Util.loadFileInfos = function() {
-        if (!fs.existsSync(this.filesName)){ 
+    loadFileInfos() {
+        if (!fs.existsSync(this.filesName)) {
             this.fileInfos = []
         } else {
             this.fileInfos = JSON.parse(fs.readFileSync(this.filesName, "utf8"))
         }
     }
-    Util.saveFileInfos = function() {
-        //console.log("saveFileInfos : " + this.filesName);
+    saveFileInfos() {
         fs.writeFileSync(this.filesName, JSON.stringify(this.fileInfos, null, 4));
     }
-    Util.insertFileInfo = function(info) {
+    insertFileInfo(info) {
         for (var i in this.fileInfos) {
             if (this.fileInfos[i]["name"] == info["name"]) {
-                Util.array_removeat(this.fileInfos, i);
+                this.array_removeat(this.fileInfos, i);
                 break;
             }
         }
-        Util.array_insert(this.fileInfos, 0, info);
-        Util.saveFileInfos();
+        this.array_insert(this.fileInfos, 0, info);
+        this.saveFileInfos();
         this.event.emit("updateInfos")
     }
-    Util.removeFileInfo = async function(info) {
+    async removeFileInfo(info) {
         if (info == null) { return }
         for (var i in this.fileInfos) {
             if (this.fileInfos[i]["name"] == info["name"]) {
-                Util.array_removeat(this.fileInfos, i);
+                this.array_removeat(this.fileInfos, i);
                 break;
             }
         }
-        Util.saveFileInfos();
+        this.saveFileInfos();
         this.event.emit("updateInfos")
         await this.removeFile(path.resolve(this.apkPath, info.name + ".apk"))
         await this.rmdirRecursive(this.apkPath + "/" + info.name)
     }
-    Util.getAppIcon = function(info) {
+    getAppIcon(info) {
         return "file://" + this.apkPath + "/" + info.name + "/source/" + info.icon;
     }
-    Util.getAndroidVersion = function(version) {
+    getAndroidVersion(version) {
         var str = AndroidList[version];
         if (str == undefined) {
             return version;
         }
         return str;
     }
-    Util.copyFile = function(source, target) {
-        fs.copyFileSync(source, target);
-    }
-    Util.mkdir = function(dir) {
-        if (!fs.existsSync(dir)) { fs.mkdirSync(dir); }
-    }
-    Util.rmdirRecursive = async function(dir) {
-        if (fs.existsSync(dir)) {
-            var files = fs.readdirSync(dir)
-            for (var file of files) {
-                var curPath = path.resolve(dir, file)
-                if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                    await this.rmdirRecursive(curPath)
-                } else {
-                    await this.removeFile(curPath)
-                }
-            }
-            await this.rmdir(dir)
-        }
-    }
-    Util.removeFile = function(file) {
-        return new Promise((resolve, reject) => {
-            fs.unlink(file, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-    }
-    Util.rmdir = function(dir) {
-        return new Promise((resolve, reject) => {
-            fs.rmdir(dir, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-    }
-    Util.readFile = function(file) {
-        return new Promise((resolve, reject) => {
-            fs.readFile(file, "utf8", (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-            });
-        });
-    }
+}
+var Util = (function() {
+    
     Util.executeJar = function(command, cwd, callback) {
         this.execute("java -jar " + command, cwd, callback)
     }
@@ -291,9 +229,6 @@ var Util = (function() {
         });
         return sp;
     }
-    Util.getString = function(data) {
-        return iconv.decode(new Buffer(data), "utf8")
-    }
     Util.parseArg = function(arg) {
         if (arg.indexOf(" ") < 0) {
             return arg;
@@ -312,17 +247,6 @@ var Util = (function() {
     }
     Util.array_removeat = function(arr, index) {
         arr.splice(index, 1);
-    }
-    Util.readdir = function(path) {
-        return new Promise((resolve, reject) => {
-            fs.readdir(path, (err, files) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(files);
-                }
-            })
-        });
     }
     Util.showMessage = function(title, message) {
         Notification.success({

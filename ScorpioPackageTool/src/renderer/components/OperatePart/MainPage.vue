@@ -1,7 +1,8 @@
 <template>
-    <el-container style="height: 100%; border: 1px solid #eee; padding: 10px">
-        <el-aside width="305px">
-            <el-card class="line">
+    <el-container style="height: 100%; width: 100%; border: 1px solid #eee; padding: 10px">
+        <el-tabs v-model='activeName' style="margin: 0px 20px; width: 100%">
+            <el-tab-pane label="我的设备" name="devices">
+                <el-card class="line">
                 <div slot="header" class="clearfix">
                     <span>设备列表</span>
                 </div>
@@ -23,7 +24,10 @@
                     <el-button slot="append" size="small" @click="OnClickConnectDevice">连接</el-button>
                 </el-input>
             </el-card>
-        </el-aside>
+            </el-tab-pane>
+            <el-tab-pane label="应用管理" name="application"></el-tab-pane>
+            <el-tab-pane label="文件管理" name="file" ></el-tab-pane>
+        </el-tabs>
     </el-container>
 </template>
 <script>
@@ -46,6 +50,7 @@ export default {
             deviceSel : "",     //当前选择设备
             otherDevice: "",    //其他端口设备
             history : "",
+            activeName : "devices",
             historyList: [{
                 label : "MuMu模拟器",
                 value : "127.0.0.1:7555",

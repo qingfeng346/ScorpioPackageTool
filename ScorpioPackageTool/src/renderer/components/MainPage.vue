@@ -9,7 +9,7 @@
                     <i class="el-icon-tickets"></i>
                     <span slot="title">文件解析</span>
                 </el-menu-item>
-                <el-menu-item index="operate" disabled="">
+                <el-menu-item index="operate">
                     <i class="el-icon-setting"></i>
                     <span slot="title">安卓设备管理(测试)</span>
                 </el-menu-item>

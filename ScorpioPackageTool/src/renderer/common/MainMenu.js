@@ -4,6 +4,7 @@ const app = electron.remote.app;
 const dialog = electron.remote.dialog;
 const shell = electron.remote.shell;
 import { Util } from './Util';
+import { console } from './logger';
 import Axios from 'axios';
 
 var FileMenu = {
@@ -78,19 +79,18 @@ var HelpMenu = {
         }
     ]
 }
-
-var MainMenu = (function () {
-    function MainMenu() {
-    }
-    MainMenu.Init = function() {
+class MainMenuClass {
+    Init() {
         var templateMenu = []
         templateMenu.push(FileMenu);
         templateMenu.push(DevMenu);
         templateMenu.push(HelpMenu)
         Menu.setApplicationMenu(Menu.buildFromTemplate(templateMenu))
-        this.CheckUpdate(false)
+        if (!Util.IsDev()) {
+            this.CheckUpdate(false)
+        }
     }
-    MainMenu.CheckUpdate = async function(hint) {
+    async CheckUpdate(hint) {
         try {
             var result = await Axios.get("https://api.github.com/repos/qingfeng346/ScorpioPackageTool/releases/latest")
             console.log("status : " + result.status)
@@ -103,7 +103,6 @@ var MainMenu = (function () {
                         title: "检测到新版本",
                         message : `当前版本 : v${version}
 最新版本 : ${data.name}`,
-//发布日期 : ${data.published_at}
                         detail: data.body,
                         cancelId : 99,
                         buttons: ['Download']
@@ -126,11 +125,10 @@ var MainMenu = (function () {
                 detail: `当前已经是最新版本`,
                 buttons: ['Yes']
             }
-            dialog.showMessageBox(options, function (index) {
-            })
+            dialog.showMessageBox(options, function (index) {})
         }
     }
-    MainMenu.ShowAbout = function() {
+    ShowAbout() {
         var version = app.getVersion()
         var arch = process.arch
         var chrome = process.versions.chrome
@@ -157,6 +155,6 @@ Electron: ${ele}
             }
         })
     }
-    return MainMenu
-})();
+}
+var MainMenu = new MainMenuClass()
 export { MainMenu };

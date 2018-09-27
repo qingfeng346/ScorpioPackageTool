@@ -2,13 +2,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const Util = require('./Util.js').Util;
-const console = require('./logger.js').logger;
-const iconv = require("iconv-lite")
+import { console } from './logger';
 
-var parseAndroid = (function () {
-    function parseAndroid() {
-    }
-    parseAndroid.prototype.init = function(sourceFile) {
+class parseAndroid {
+    init(sourceFile) {
         return new Promise((resolve, reject) => {
             this.file = sourceFile
             this.fileName = path.basename(sourceFile, ".apk");
@@ -20,13 +17,13 @@ var parseAndroid = (function () {
             });
         })
     }
-    parseAndroid.prototype.getIcon = function() {
+    getIcon() {
         if (this.apkInfo) {
             return apkPath + "/" + this.fileName + "/" + this.apkInfo.icon;
         }
         return "";
     }
-    parseAndroid.prototype.parseInfo = function() {
+    parseInfo() {
         return new Promise((resolve, reject) => {
             var bat = Util.getAapt()
             console.log("开始解析文件 " + this.fileName + " -> AndroidManifest.xml");
@@ -44,7 +41,7 @@ var parseAndroid = (function () {
             })
         })
     }
-    parseAndroid.prototype.parseLineInfo = function(info) {
+    parseLineInfo(info) {
         var quot = false;       //当前是否是引号包围
         var key = "";           //key值
         var tmp = "";           //临时字符串
@@ -68,7 +65,7 @@ var parseAndroid = (function () {
         }
         return ret;
     }
-    parseAndroid.prototype.parseInfo_impl = function(aatpInfo) {
+    parseInfo_impl(aatpInfo) {
         var strs = aatpInfo.split('\n');
         var apkInfo = {}
         apkInfo["name"] = this.fileName;
@@ -89,7 +86,7 @@ var parseAndroid = (function () {
         }
         this.apkInfo = apkInfo;
     }
-    parseAndroid.prototype.createManifest = function() {
+    createManifest() {
         var source = Util.parseArg(this.targetPath + "/source/original/AndroidManifest.xml");
         var target = Util.parseArg(this.targetPath + "/AndroidManifest.xml");
         Util.executeJar(`AXMLPrinter2.jar ${source} > ${target}`, "AXMLPrinter2", (err, stdout, stderr) => {
@@ -99,7 +96,7 @@ var parseAndroid = (function () {
             }
         }, true);
     }
-    parseAndroid.prototype.dex2jar = function() {
+    dex2jar() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "./d2j-dex2jar.sh";
             var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"]);
@@ -110,7 +107,7 @@ var parseAndroid = (function () {
             });
         });
     }
-    parseAndroid.prototype.decompress = function() {
+    decompress() {
         return new Promise((resolve, reject) => {
             var bat = Util.IsWindows() ? "apktool.bat" : "./apktool.sh";
             var sp = Util.execCommand(bat, "apktool", ["d", "-f", Util.parseArg(this.targetFile), "-o", Util.parseArg(this.targetPath + "/source/")]);
@@ -122,7 +119,6 @@ var parseAndroid = (function () {
             });
         })
     }
-    return parseAndroid;
-}());
+}
 
 export { parseAndroid }

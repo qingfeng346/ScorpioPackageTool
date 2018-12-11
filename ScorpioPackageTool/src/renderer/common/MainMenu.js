@@ -5,6 +5,7 @@ const dialog = electron.remote.dialog;
 const shell = electron.remote.shell;
 import { Util } from './Util';
 import { console } from './logger';
+import { BuildInfo } from './BuildInfo';
 import Axios from 'axios';
 
 var FileMenu = {
@@ -86,14 +87,13 @@ class MainMenuClass {
         templateMenu.push(DevMenu);
         templateMenu.push(HelpMenu)
         Menu.setApplicationMenu(Menu.buildFromTemplate(templateMenu))
-        if (!Util.IsDev()) {
+        if (!Util.IsDev) {
             this.CheckUpdate(false)
         }
     }
     async CheckUpdate(hint) {
         try {
             var result = await Axios.get("https://api.github.com/repos/qingfeng346/ScorpioPackageTool/releases/latest")
-            console.log("status : " + result.status)
             if (result.status == 200) {
                 var data = result.data
                 var version = Util.getVersion()
@@ -134,8 +134,7 @@ class MainMenuClass {
         var chrome = process.versions.chrome
         var node = process.versions.node
         var ele = process.versions.electron
-        var buildInfo = Util.getBuildInfo()
-        var time = new Date(buildInfo.date).toLocaleString()
+        var time = BuildInfo.date.toLocaleString()
         const options = {
             type: 'info',
             title: 'Scorpio Package Tool',

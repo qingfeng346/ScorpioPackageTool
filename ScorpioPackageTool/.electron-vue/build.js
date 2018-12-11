@@ -33,6 +33,7 @@ function clean () {
 }
 
 function build () {
+  createBuildInfo()
   greeting()
 
   del.sync(['dist/electron/*', '!.gitkeep'])
@@ -76,6 +77,27 @@ function build () {
     process.exit(1)
   })
 }
+function createBuildInfo() {
+  fs.writeFileSync(path.resolve(__dirname, "../src/renderer/common/BuildInfo.js"), `
+export const BuildInfo = {
+  date : new Date(${new Date().valueOf()})
+}
+  `)
+  // var info = {
+  //   "date" : new Date().getTime()
+  // }
+  // var strInfo = JSON.stringify(info)
+  // console.log("写入信息 : " + strInfo)
+  // for (var appPath of appPaths) {
+  //   var dir = getResourcePath(appPath)
+  //   try {
+  //     fs.writeFileSync(path.resolve(dir, "info.json"), strInfo)
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
+}
+
 
 function pack (config) {
   return new Promise((resolve, reject) => {
@@ -160,7 +182,6 @@ function getResourcePath(appPath) {
 }
 function buildAppSuccess(appPaths) {
   copyTool(appPaths)
-  createInfos(appPaths)
 }
 function copyTool(appPaths) {
   for (var appPath of appPaths) {
@@ -169,19 +190,3 @@ function copyTool(appPaths) {
     copydir.sync(path.resolve(process.cwd(), "tools"), path.resolve(dir, "tools"))
   }
 }
-function createInfos(appPaths) {
-  var info = {
-    "date" : new Date().getTime()
-  }
-  var strInfo = JSON.stringify(info)
-  console.log("写入信息 : " + strInfo)
-  for (var appPath of appPaths) {
-    var dir = getResourcePath(appPath)
-    try {
-      fs.writeFileSync(path.resolve(dir, "info.json"), strInfo)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-}
-

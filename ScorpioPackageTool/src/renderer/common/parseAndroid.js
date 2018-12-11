@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const Util = require('./Util.js').Util;
 import { console } from './logger';
+import { ExecUtil } from './ExecUtil.js';
 
 class parseAndroid {
     init(sourceFile) {
@@ -23,23 +24,12 @@ class parseAndroid {
         }
         return "";
     }
-    parseInfo() {
-        return new Promise((resolve, reject) => {
-            var bat = Util.getAapt()
-            console.log("开始解析文件 " + this.fileName + " -> AndroidManifest.xml");
-            var _this = this;
-            var targetFile = Util.parseArg(this.targetFile);
-            Util.executeExe(`${bat} dump badging ${targetFile}`, "aapt", (err, stdout, stderr) => {
-                if (err) {
-                    console.log("解析 AndroidManifest.xml 失败 : " + err.stack);
-                    reject(err.stack);
-                    return;
-                }
-                _this.parseInfo_impl(stdout);
-                console.log("解析 AndroidManifest.xml 完成");
-                resolve(_this.apkInfo);
-            })
-        })
+    async parseInfo() {
+        console.log("开始解析文件 " + this.fileName + " -> AndroidManifest.xml");
+        let result = await ExecUtil.executeAaptDump(this.targetFile)
+        this.parseInfo_impl(result)
+        console.log("解析 AndroidManifest.xml 完成");
+        return this.apkInfo
     }
     parseLineInfo(info) {
         var quot = false;       //当前是否是引号包围
@@ -86,38 +76,23 @@ class parseAndroid {
         }
         this.apkInfo = apkInfo;
     }
-    createManifest() {
-        var source = Util.parseArg(this.targetPath + "/source/original/AndroidManifest.xml");
-        var target = Util.parseArg(this.targetPath + "/AndroidManifest.xml");
-        Util.executeJar(`AXMLPrinter2.jar ${source} > ${target}`, "AXMLPrinter2", (err, stdout, stderr) => {
-            if (err) {
-                console.log("createManifest 失败 : " + stderr);
-                return;
-            }
-        }, true);
+    async dex2jar() {
+        console.log("开始反编译 jar")
+        await ExecUtil.executeDex2jar(this.targetFile, this.targetPath + "/source.jar")
+        console.log("反编译jar完成")
     }
-    dex2jar() {
-        return new Promise((resolve, reject) => {
-            var bat = Util.IsWindows() ? "d2j-dex2jar.bat" : "./d2j-dex2jar.sh";
-            var sp = Util.execCommand(bat, "dex-tools", ["-f", this.targetFile, "-o", this.targetPath + "/source.jar"]);
-            console.log("开始反编译jar");
-            sp.on("close", () => {
-                console.log("反编译jar完成")
-                resolve();
-            });
-        });
+    async decompress() {
+        console.log("开始解压文件 : " + this.fileName);
+        await ExecUtil.executeApkDecompress(this.targetFile, this.targetPath + "/source/")
+        console.log("解压文件完成");
+        await this.createManifest()
     }
-    decompress() {
-        return new Promise((resolve, reject) => {
-            var bat = Util.IsWindows() ? "apktool.bat" : "./apktool.sh";
-            var sp = Util.execCommand(bat, "apktool", ["d", "-f", Util.parseArg(this.targetFile), "-o", Util.parseArg(this.targetPath + "/source/")]);
-            console.log("开始解压文件 : " + this.fileName);
-            sp.on('close', () => {
-                console.log("解压文件完成");
-                this.createManifest();
-                resolve();
-            });
-        })
+    async createManifest() {
+        var source = ExecUtil.parseArg(this.targetPath + "/source/original/AndroidManifest.xml");
+        var target = ExecUtil.parseArg(this.targetPath + "/AndroidManifest.xml");
+        console.log("开始反编译 AndroidManifest.xml")
+        await ExecUtil.executeJarAsync(`AXMLPrinter2.jar ${source} > ${target}`, "AXMLPrinter2")
+        console.log("反编译完成")
     }
 }
 

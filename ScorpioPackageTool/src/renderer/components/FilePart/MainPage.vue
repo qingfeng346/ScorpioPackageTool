@@ -40,10 +40,10 @@
             }
         },
         methods: {
-            OnClickWorkPath : function() {
+            OnClickWorkPath() {
                 shell.showItemInFolder(Util.apkPath);
             },
-            OnDropFiles : function(files) {
+            OnDropFiles(files) {
                 if (Util.activeMenu != "file") { return }
                 var names = []
                 for (var file of files) {
@@ -53,12 +53,12 @@
                 }
                 this.parseAndroidFiles(names)
             },
-            parseAndroidFiles : async function(files) {
+            async parseAndroidFiles(files) {
                 for (var file of files) {
                     await this.parseAndroidFile(file);
                 }
             },
-            parseAndroidFile : async function(file) {
+            async parseAndroidFile(file) {
                 console.log("正在解析文件 : " + file);
                 var parse = new parseAndroid();
                 var loading = Loading.service( { background: "rgba(20,20,20,0.7)", text: "正在解析"});
@@ -80,7 +80,7 @@
                     loading.close();
                 }
             },
-            OnClickOpenFile : function() {
+            OnClickOpenFile() {
                 Util.showOpenDialog({
                     filters: [ {name: 'apk & ipa', extensions: ['apk', 'ipa'] }],
                     properties: ['openFile', 'multiSelections']

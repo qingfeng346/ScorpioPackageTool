@@ -3,27 +3,27 @@
         <el-tabs v-model='activeName' style="margin: 0px 20px; width: 100%">
             <el-tab-pane label="我的设备" name="devices">
                 <el-card class="line">
-                <div slot="header" class="clearfix">
-                    <span>设备列表</span>
-                </div>
-                <div>
-                    <el-select v-model="deviceSel" value-key="id" size="small" style="width: 200px" placeholder="无设备" @change="OnChangeDevice">
-                        <el-option v-for="device in deviceList" :key="device.id" :label="formatDeivce(device)" :value="device.id"></el-option>
-                    </el-select>
-                    <el-button circle icon="el-icon-refresh" size="small" @click="OnClickRefreshDevices"></el-button>
-                </div>
-            </el-card>
-            <el-card class="line">
-                <div slot="header" class="clearfix">
-                    <span>其他端口设备</span>
-                </div>
-                <el-input size="small" v-model="otherDevice" placeholder="请输入IP端口">
-                    <el-select slot="prepend" v-model="history" @change="OnChangeHistory">
-                        <el-option v-for="item in historyList" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                    </el-select>
-                    <el-button slot="append" size="small" @click="OnClickConnectDevice">连接</el-button>
-                </el-input>
-            </el-card>
+                    <div slot="header" class="clearfix">
+                        <span>设备列表</span>
+                        <el-button circle icon="el-icon-refresh" size="small" @click="OnClickRefreshDevices"></el-button>
+                    </div>
+                    <div>
+                        <el-select v-model="activeDevice" value-key="id" size="small" style="width: 100%" placeholder="无设备" @change="OnChangeDevice">
+                            <el-option v-for="device in deviceList" :key="device.id" :label="formatDeivce(device)" :value="device.id"></el-option>
+                        </el-select>
+                    </div>
+                </el-card>
+                <el-card class="line">
+                    <div slot="header" class="clearfix">
+                        <span>其他端口设备</span>
+                    </div>
+                    <el-input size="small" v-model="otherDevice" placeholder="请输入IP端口">
+                        <el-select slot="prepend" v-model="history" @change="OnChangeHistory">
+                            <el-option v-for="item in historyList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                        <el-button slot="append" size="small" @click="OnClickConnectDevice">连接</el-button>
+                    </el-input>
+                </el-card>
             </el-tab-pane>
             <el-tab-pane label="应用管理" name="application"></el-tab-pane>
             <el-tab-pane label="文件管理" name="file" ></el-tab-pane>
@@ -34,6 +34,7 @@
 import path from 'path';
 import { console } from '../../common/logger';
 import { Util } from '../../common/Util';
+import { ExecUtil } from '../../common/ExecUtil';
 import { Loading } from 'element-ui';
 import { Notification } from 'element-ui';
 export default {
@@ -47,7 +48,7 @@ export default {
     data() {
         return {
             deviceList: [],     //设备列表
-            deviceSel : "",     //当前选择设备
+            activeDevice : "",  //当前选择设备
             otherDevice: "",    //其他端口设备
             history : "",
             activeName : "devices",
@@ -62,75 +63,68 @@ export default {
         }
     },
     methods: {
-        OnDropFiles : async function(files) {
+        async OnDropFiles(files) {
             if (Util.activeMenu != "operate") { return; }
-            if (this.deviceSel == "") { return; }
+            if (this.activeDevice == "") { return; }
             for (var file of files) {
-                if (file.name.endWith(".apk")) {
-                    var loading = Loading.service({text: "正在安装文件 : " + file.name})
-                    var path = Util.parseArg(file.path)
-                    try {
-                        await Util.adbAndroid(this.deviceSel, `install -r ${path}`)
-                        console.log("安装成功")
-                        Notification.success({ message: "安装成功" });
-                    } catch (err) {
-                        console.error("安装失败 : " + err)
-                        Notification.error({ message: "安装失败 : " + err });
-                    } finally {
-                        loading.close()
-                    }
+                if (!file.name.endWith(".apk")) { continue }
+                var loading = Loading.service({text: `正在安装文件 : ${file.name}`})
+                try {
+                    var path = ExecUtil.parseArg(file.path)
+                    await ExecUtil.executeDeviceAdb(this.activeDevice, `install -r ${path}`)
+                    console.log("安装成功")
+                    Notification.success({ message: "安装成功" });
+                } catch (err) {
+                    console.error("安装失败 : " + err)
+                    Notification.error({ message: "安装失败 : " + err });
+                } finally {
+                    loading.close()
                 }
             }
             for (var file of files) {
-                if (file.name.endWith(".obb")) {
-                    var loading = Loading.service({text: "正在拷贝obb : " + file.name})
-                    var bundleId = file.name.substring(file.name.indexOf(".", 5) + 1)
+                if (!file.name.endWith(".obb")) { continue }
+                var loading = Loading.service({text: "正在拷贝obb : " + file.name})
+                try {
+                    let bundleId = file.name.substring(file.name.indexOf(".", 5) + 1)
                     bundleId = bundleId.substring(0, bundleId.lastIndexOf("."))
+                    await ExecUtil.executeDeviceShell(this.activeDevice, `mkdir /sdcard/Android/obb/${bundleId}`)
                     var fullPath = file.path
-                    try {
-                        await Util.shellAndroid(this.deviceSel, `mkdir /sdcard/Android/obb/${bundleId}`)
-                    } catch (e) { }
-                    try {
-                        var p = Util.parseArg(fullPath)
-                        await Util.adbAndroid(this.deviceSel, `push ${p} /sdcard/Android/obb/${bundleId}/`)
-                        console.log("拷贝成功 : " + fullPath)
-                        Notification.success({ message: "拷贝成功" });
-                    } catch (err) {
-                        console.error("拷贝失败 : " + err)
-                        Notification.error({ message: "拷贝失败 : " + err});
-                    } finally {
-                        loading.close()
-                    }
-                    
+                    var argPath = ExecUtil.parseArg(fullPath)
+                    await ExecUtil.executeDeviceAdb(this.activeDevice, `push ${argPath} /sdcard/Android/obb/${bundleId}/`)
+                    console.log("拷贝成功 : " + fullPath)
+                    Notification.success({ message: "拷贝成功" });
+                } catch (err) {
+                    console.error("拷贝失败 : " + err)
+                    Notification.error({ message: "拷贝失败 : " + err});
+                } finally {
+                    loading.close()
                 }
             }
         },
         formatDeivce : function(device) {
-            var v = Util.getAndroidVersion(device.androidVersion)
-            return `${device.model}(${v})`
+            return `${device.model}(${Util.getAndroidVersion(device.androidVersion)})`
         },
-        OnClickRefreshDevices : async function() {
-            this.deviceSel = ""
+        async OnClickRefreshDevices() {
+            this.activeDevice = ""
             var devices = await Util.getAndroidDevices();
             this.deviceList = devices
             if (this.deviceList.length > 0) {
-                this.deviceSel = this.deviceList[0].id
+                this.activeDevice = this.deviceList[0].id
                 this.OnChangeDevice()
             }
         },
-        OnClickConnectDevice : async function() {
+        async OnClickConnectDevice () {
             if (this.otherDevice == "") { return; }
-            var bat = Util.getAdb()
-            Util.executeExeAsync(`${bat} connect ` + this.otherDevice, "adb").then(() => {
+            ExecUtil.executeAdbAsync(`connect ${this.otherDevice}`).then(() => {
                 this.OnClickRefreshDevices()
             }).catch((err) => {
                 Notification.error({message : err})
             });
         },
-        OnChangeHistory: async function() {
+        async OnChangeHistory() {
             this.otherDevice = this.history
         },
-        OnChangeDevice: async function() {
+        async OnChangeDevice() {
             // var result = await Util.shellAndroid(this.deviceSel, "pm list packages -e 'com.funplus.townkins.global'") 
             // console.log(result)
             // var result = await Util.shellAndroid(this.deviceSel, "dumpsys -p package 'com.funplus.townkins.global'") 

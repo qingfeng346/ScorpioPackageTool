@@ -4,6 +4,14 @@
             <el-tab-pane label="我的设备" name="devices">
                 <el-card class="line">
                     <div slot="header" class="clearfix">
+                        <span>安装应用，上传obb文件</span>
+                    </div>
+                    <div>
+                        <el-button type="primary" size='medium' icon="el-icon-document" v-on:click="OnClickOpenFile()">选择文件</el-button>
+                    </div>
+                </el-card>
+                <el-card class="line">
+                    <div slot="header" class="clearfix">
                         <span>设备列表</span>
                         <el-button circle icon="el-icon-refresh" size="small" @click="OnClickRefreshDevices"></el-button>
                     </div>
@@ -25,8 +33,10 @@
                     </el-input>
                 </el-card>
             </el-tab-pane>
+            <!--
             <el-tab-pane label="应用管理" name="application"></el-tab-pane>
             <el-tab-pane label="文件管理" name="file" ></el-tab-pane>
+            -->
         </el-tabs>
     </el-container>
 </template>
@@ -63,16 +73,39 @@ export default {
         }
     },
     methods: {
-        async OnDropFiles(files) {
+        OnDropFiles(files) {
             if (Util.activeMenu != "operate") { return; }
-            if (this.activeDevice == "") { return; }
+            var names = []
             for (var file of files) {
-                if (!file.name.endWith(".apk")) { continue }
-                var loading = Loading.service({text: `正在安装文件 : ${file.name}`})
+                if (file.name.endWith(".apk")) {
+                    names.push(file.path);
+                }
+            }
+            this.openFiles(names)
+        },
+        async openFiles(files) {
+            if (this.activeDevice == "") {
+                Util.showError("请先选择一个设备")
+                return; 
+            }
+            for (let file of files) {
+                console.log(file)
+                if (!file.endWith(".apk")) { continue }
+                await this.openFile(file)
+            }
+            for (let file of files) {
+                if (!file.endWith(".obb")) { continue }
+                await this.openFile(file)
+            }
+        },
+        async openFile(file) {
+            let fileName = path.basename(file)
+            if (file.endWith(".apk")) {
+                let loading = Loading.service({text: `正在安装文件 : ${fileName}`})
                 try {
-                    var path = ExecUtil.parseArg(file.path)
-                    await ExecUtil.executeDeviceAdb(this.activeDevice, `install -r ${path}`)
-                    console.log("安装成功")
+                    let argPath = ExecUtil.parseArg(file)
+                    await ExecUtil.executeDeviceAdb(this.activeDevice, `install -r ${argPath}`)
+                    console.log(`安装成功 : ${file}`)
                     Notification.success({ message: "安装成功" });
                 } catch (err) {
                     console.error("安装失败 : " + err)
@@ -80,18 +113,17 @@ export default {
                 } finally {
                     loading.close()
                 }
-            }
-            for (var file of files) {
-                if (!file.name.endWith(".obb")) { continue }
-                var loading = Loading.service({text: "正在拷贝obb : " + file.name})
+            } else if (file.endWith(".obb")) {
+                let loading = Loading.service({text: `正在拷贝obb : ${fileName}`})
                 try {
-                    let bundleId = file.name.substring(file.name.indexOf(".", 5) + 1)
+                    let bundleId = fileName.substring(fileName.indexOf(".", 5) + 1)     //先过滤 main.{versionCode}.
                     bundleId = bundleId.substring(0, bundleId.lastIndexOf("."))
-                    await ExecUtil.executeDeviceShell(this.activeDevice, `mkdir /sdcard/Android/obb/${bundleId}`)
-                    var fullPath = file.path
-                    var argPath = ExecUtil.parseArg(fullPath)
+                    try {
+                        await ExecUtil.executeDeviceShell(this.activeDevice, `mkdir /sdcard/Android/obb/${bundleId}`)
+                    } catch (e) { }
+                    let argPath = ExecUtil.parseArg(file)
                     await ExecUtil.executeDeviceAdb(this.activeDevice, `push ${argPath} /sdcard/Android/obb/${bundleId}/`)
-                    console.log("拷贝成功 : " + fullPath)
+                    console.log(`拷贝成功 : ${file}`)
                     Notification.success({ message: "拷贝成功" });
                 } catch (err) {
                     console.error("拷贝失败 : " + err)
@@ -132,6 +164,14 @@ export default {
             // var result = await Util.shellAndroid(this.deviceSel, "pm list packages -f -3"  ) 
             // console.log(result)
         },
+        OnClickOpenFile() {
+            Util.showOpenDialog({
+                filters: [ {name: 'apk & obb', extensions: ['apk', 'obb'] }],
+                properties: ['openFile', 'multiSelections']
+            }, null, (files, args) => {
+                this.openFiles(files)
+            });
+        }
     }
 }
 </script>

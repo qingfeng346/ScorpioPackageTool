@@ -11,7 +11,7 @@
                 </el-menu-item>
                 <el-menu-item index="operate">
                     <i class="el-icon-setting"></i>
-                    <span slot="title">安卓设备管理(测试)</span>
+                    <span slot="title">安卓设备管理</span>
                 </el-menu-item>
                 <el-menu-item index="resign" disabled="">
                     <i class="el-icon-edit"></i>

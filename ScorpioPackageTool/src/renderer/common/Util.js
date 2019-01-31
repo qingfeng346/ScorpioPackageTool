@@ -212,6 +212,14 @@ class UtilClass {
             position: 'bottom-left'
         })
     }
+    showError(message) {
+        console.log("showError : " + message)
+        Notification.error({
+            message: message,
+            dangerouslyUseHTMLString: true,
+            position: 'bottom-left'
+        })
+    }
     //打开文件窗口
     showOpenDialog = function(options, args, callback) {
         ShowOpenDialogCallback = callback

@@ -105,7 +105,7 @@ class MainMenuClass {
 最新版本 : ${data.name}`,
                         detail: data.body,
                         cancelId : 99,
-                        buttons: ['Download']
+                        buttons: ['Download','Cancel']
                     }
                     dialog.showMessageBox(options, function (index) {
                         if (index == 0) {

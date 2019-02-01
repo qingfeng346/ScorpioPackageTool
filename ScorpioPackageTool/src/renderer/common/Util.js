@@ -192,16 +192,13 @@ class UtilClass {
     }
     checkAdbEnviroment() {
         try {
-            var result = ExecUtil.executeSync(`adb --version`)
+            ExecUtil.executeSync(`adb --version`)
             ExecUtil.useSystemAdb(true)
-            this.showSuccess("检测到系统adb, 将使用系统adb\n" + result)
+            this.showSuccess(`检测到系统adb, 将使用系统adb`)
         } catch (e) {
+            console.error(e)
             ExecUtil.useSystemAdb(false)
-            Notification.warning({
-                message : "检测不到adb环境,将使用内部adb",
-                dangerouslyUseHTMLString: true,
-                position: 'bottom-right'
-            })
+            this.showWarn("检测不到adb环境, 将使用内部adb")
         }
     }
     showSuccess(message) {
@@ -212,8 +209,16 @@ class UtilClass {
             position: 'bottom-left'
         })
     }
+    showWarn(message) {
+        console.warn("showWarn : " + message)
+        Notification.warn({
+            message: message,
+            dangerouslyUseHTMLString: true,
+            position: 'top-right'
+        })
+    }
     showError(message) {
-        console.log("showError : " + message)
+        console.error("showError : " + message)
         Notification.error({
             message: message,
             dangerouslyUseHTMLString: true,

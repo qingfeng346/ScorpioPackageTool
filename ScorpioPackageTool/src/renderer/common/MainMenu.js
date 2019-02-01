@@ -105,13 +105,22 @@ class MainMenuClass {
 最新版本 : ${data.name}`,
                         detail: data.body,
                         cancelId : 99,
-                        buttons: ['Download','Cancel']
+                        buttons: ['Download','Close']
                     }
                     dialog.showMessageBox(options, function (index) {
                         if (index == 0) {
                             shell.openExternal("https://github.com/qingfeng346/ScorpioPackageTool/releases/latest")
                         }
                     })
+                } else {
+                    const options = {
+                        type: 'info',
+                        title: "检测版本",
+                        message : `已经是最新版本 : v${version}`,
+                        cancelId : 99,
+                        buttons: ['Close']
+                    }
+                    dialog.showMessageBox(options, function (index) {})
                 }
                 return;
             }

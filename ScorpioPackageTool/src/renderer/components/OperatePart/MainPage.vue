@@ -79,6 +79,8 @@ export default {
             for (var file of files) {
                 if (file.name.endWith(".apk")) {
                     names.push(file.path);
+                } else if (file.name.endWith(".obb")) {
+                    names.push(file.path)
                 }
             }
             this.openFiles(names)

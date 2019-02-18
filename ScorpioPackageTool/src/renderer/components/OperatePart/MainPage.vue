@@ -77,11 +77,7 @@ export default {
             if (Util.activeMenu != "operate") { return; }
             var names = []
             for (var file of files) {
-                if (file.name.endWith(".apk")) {
-                    names.push(file.path);
-                } else if (file.name.endWith(".obb")) {
-                    names.push(file.path)
-                }
+                names.push(file.path)
             }
             this.openFiles(names)
         },
@@ -91,7 +87,6 @@ export default {
                 return; 
             }
             for (let file of files) {
-                console.log(file)
                 if (!file.endWith(".apk")) { continue }
                 await this.openFile(file)
             }

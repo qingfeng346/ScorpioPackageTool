@@ -34,6 +34,7 @@ function createWindow () {
     win = null
   })
   require('./application/application-events')
+  require('./application/application-menu')
 }
 
 // Quit when all windows are closed.

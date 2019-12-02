@@ -33,6 +33,7 @@ function createWindow () {
   win.on('closed', () => {
     win = null
   })
+  require('./application/application-events')
 }
 
 // Quit when all windows are closed.

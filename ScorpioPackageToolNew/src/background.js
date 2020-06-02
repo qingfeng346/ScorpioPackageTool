@@ -7,6 +7,10 @@ import {
 } from 'vue-cli-plugin-electron-builder/lib'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+require('./application/application-events')
+require('./application/application-menu')
+
+app.setName("ScorpioPackageTool")
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -16,7 +20,7 @@ protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
+  win = new BrowserWindow({ width: 800, height: 600, backgroundColor : "#FFF", webPreferences: {
     nodeIntegration: true
   } })
 
@@ -33,8 +37,7 @@ function createWindow () {
   win.on('closed', () => {
     win = null
   })
-  require('./application/application-events')
-  require('./application/application-menu')
+
 }
 
 // Quit when all windows are closed.

@@ -37,7 +37,7 @@ ipcMain.on('getAppInfo', function (event) {
     },
     env : process.env,
     versions : process.versions,
-    name: app.getName(),
+    name: app.name,
     version: app.getVersion(),
     locale: app.getLocale(),
     argv: process.argv

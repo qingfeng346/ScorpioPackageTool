@@ -9,6 +9,7 @@ import { spawn, exec, execSync } from "child_process";
 import { Notification } from "element-ui";
 import { console } from "./logger";
 import { MainMenu } from './MainMenu';
+import { FileUtil } from "./FileUtil";
 
 const AndroidList = {
     "1" : "Android 1.0",
@@ -419,7 +420,30 @@ class UtilClass {
             return "./adb"
         }
     }
-
+    //     insertFileInfo(info) {
+//         for (var i in this.fileInfos) {
+//             if (this.fileInfos[i]["name"] == info["name"]) {
+//                 this.array_removeat(this.fileInfos, i);
+//                 break;
+//             }
+//         }
+//         this.array_insert(this.fileInfos, 0, info);
+//         this.saveFileInfos();
+//         this.event.emit("updateInfos")
+//     }
+    async removeFileInfo(info) {
+        if (info == null) { return }
+        for (let i in this.fileInfos) {
+            if (this.fileInfos[i]["name"] == info["name"]) {
+                this.array_removeat(this.fileInfos, i);
+                break;
+            }
+        }
+        this.saveFileInfos();
+        this.event.emit("updateInfos")
+        await FileUtil.removeFile(path.resolve(this.apkPath, info.name + ".apk"))
+        await FileUtil.rmdirRecursive(this.apkPath + "/" + info.name)
+    }
     loadFileInfos() {
         if (!fs.existsSync(this.filesName)) {
             this.fileInfos = []

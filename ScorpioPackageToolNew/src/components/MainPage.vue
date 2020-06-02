@@ -24,42 +24,40 @@
             <OperatePart v-show="activeMenu == 'operate'"></OperatePart>
             <el-footer style="height: 30px" v-html="logOutput"></el-footer>
         </el-container>
-    </el-container>
+    </el-container> 
 </template>
 <script>
-    import { Util } from '../common/Util';
-    import { console, logger } from '../common/logger';
-    import FilePage from './FilePart/MainPage';
-    import OperatePart from './OperatePart/MainPage';
-    export default {
-        components : { FilePage, OperatePart },
-        created() {
-            logger.event.on("log", (level, str) => { this.logOutput = str })
-        },
-        mounted() {
-            Util.activeMenu = this.activeMenu
-        },
-        data() {
-            return {
-                logOutput : "",
-                activeMenu : "file",
-                isMenuCollapse: false,
-                menuWidth: "180px",
-            }
-        },
-        methods: {
-            OnSelectMenu: function(index) {
-                if (index == "more") { return }
-                if (this.activeMenu == index) { return; }
-                this.activeMenu = index
-                Util.activeMenu = index
-            },
-            OnClickSwitchMenu : function() {
-                this.isMenuCollapse = !this.isMenuCollapse
-                this.menuWidth = this.isMenuCollapse ? "52px" : "180px"
-            }
-        }
-    }
+    // import { Util } from '../common/Util';
+    // import { console, logger } from '../common/logger';
+    // import FilePage from './FilePart/MainPage';
+    // import OperatePart from './OperatePart/MainPage';
+    // export default {
+    //     components : { FilePage, OperatePart },
+    //     created() {
+    //         logger.event.on("log", (level, str) => { this.logOutput = str })
+    //     },
+    //     mounted() {
+    //         Util.activeMenu = this.activeMenu
+    //     },
+    //     data() {
+    //         return {
+    //             logOutput : "",
+    //             activeMenu : "file",
+    //             isMenuCollapse: false,
+    //             menuWidth: "180px",
+    //         }
+    //     },
+    //     methods: {
+    //         OnSelectMenu: function(index) {
+    //             if (index == "more") { return }
+    //             if (this.activeMenu == index) { return; }
+    //             this.activeMenu = index
+    //             Util.activeMenu = index
+    //         },
+    //         OnClickSwitchMenu : function() {
+    //             this.isMenuCollapse = !this.isMenuCollapse
+    //             this.menuWidth = this.isMenuCollapse ? "52px" : "180px"
+    //         }
+    //     }
+    // }
 </script>
-
-

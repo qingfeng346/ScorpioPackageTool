@@ -24,7 +24,7 @@
   "dependencies": {
     "element-ui": "^2.3.2",
     "iconv-lite": "^0.4.21",
-    "plist": "^3.0.1",
+    "plist": "^3.0.4",
     "vue": "^2.5.16"
   }
 }
